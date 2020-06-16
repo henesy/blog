@@ -1,0 +1,31 @@
+baseURL = "https://seh.dev/"
+languageCode = "en-us"
+title = "seh.dev"
+copyright = "© 2020, Sean Hinchee"
+theme = "origin"
+paginate = 5
+enableInlineShortcodes = true
+footnoteReturnLinkContents = "^"
+
+[params]
+	description = "some kind of blog"
+	featured = false
+	cssonly = false
+
+[menu]
+
+  [[menu.main]]
+    identifier = "about"
+    name = "About"
+    url = "/about/"
+    weight = 10
+
+[markup]
+  [markup.highlight]
+    style = "github"
+    tabWidth = 4
+
+[markup.goldmark.renderer]
+unsafe = true
+
+

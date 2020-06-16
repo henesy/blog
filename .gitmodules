@@ -1,0 +1,7 @@
+[submodule "themes/origin"]
+	path = themes/origin
+	url = https://gitlab.com/asleeppiano/origin-hugo-theme.git
+[submodule "public"]
+	path = public
+	url = https://github.com/henesy/henesy.github.io
+	branch = master
