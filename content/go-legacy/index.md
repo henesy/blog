@@ -141,7 +141,7 @@ Nope.
 
 ### Alef
 
-[tok.l](./tok.l)
+[tok.l](./alef/tok.l)
 
 ```c
 #include <alef.h>
@@ -182,7 +182,7 @@ abc
 
 ### Plan9 C
 
-[tok.c](./tok.c)
+[tok.c](./plan9c/tok.c)
 
 ```c
 #include <u.h>
@@ -221,7 +221,7 @@ test 1 2 3
 
 ### Limbo
 
-[tok.b](./tok.b)
+[tok.b](./limbo/tok.b)
 
 ```c
 implement Tokenizing;
@@ -267,7 +267,7 @@ abc
 
 ### Go
 
-[tok.go](./tok.go)
+[tok.go](./go/tok.go)
 
 ```go
 package main
@@ -309,7 +309,7 @@ Many of the languages which inspired Go contained simple abstractions for runnin
 
 ### Newsqueak
 
-[co.nq](./co.nq)
+[co.nq](./newsqueak/co.nq)
 
 ```smalltalk
 double := prog(n : int) {
@@ -332,7 +332,7 @@ begin double(11);
 
 ### Alef
 
-[co.l](./co.l)
+[co.l](./alef/co.l)
 
 ```c
 #include <alef.h>
@@ -368,7 +368,7 @@ main(void)
 
 ### Plan9 C
 
-[co.c](./co.c)
+[co.c](./plan9c/co.c)
 
 ```c
 #include <u.h>
@@ -402,7 +402,7 @@ threadmain(int, char*[])
 
 ### Limbo
 
-[co.b](./co.b)
+[co.b](./limbo/co.b)
 
 ```c
 implement Coroutines;
@@ -439,7 +439,7 @@ init(nil: ref Draw->Context, nil: list of string) {
 
 ### Go
 
-[co.go](./co.go)
+[co.go](./go/co.go)
 
 ```go
 package main
@@ -485,7 +485,7 @@ believe yes, need to find examples
 
 ### Go
 
-[unnamed.go](./unnamed.go)
+[unnamed.go](./go/unnamed.go)
 
 ```go
 package main
@@ -550,7 +550,7 @@ func main() {
 
 ### Newsqueak
 
-[chans.nq](./chans.nq)
+[chans.nq](./newsqueak/chans.nq)
 
 ```smalltalk
 max := 10;
@@ -598,7 +598,7 @@ include the ?channel operator as per user's guide
 
 ### Limbo
 
-[chans.b](./chans.b)
+[chans.b](./limbo/chans.b)
 
 ```c
 implement Channels;
@@ -652,7 +652,7 @@ init(nil: ref Draw->Context, nil: list of string) {
 
 ### Go
 
-[chans.go](./chans.go)
+[chans.go](./go/chans.go)
 
 ```go
 package main
@@ -708,7 +708,7 @@ func main() {
 
 ### Newsqueak
 
-[select.nq](./select.nq)
+[select.nq](./newsqueak/select.nq)
 
 ```smalltalk
 max := 2;
@@ -775,7 +775,7 @@ show alt in alef on send and receive
 
 ### Plan9 C
 
-[select.c](./select.c)
+[select.c](./plan9c/select.c)
 
 ```c
 #include <u.h>
@@ -897,7 +897,7 @@ case recv	← 123
 
 ### Limbo
 
-[select.b](./select.b)
+[select.b](./limbo/select.b)
 
 ```c
 implement Select;
@@ -972,7 +972,7 @@ received	→ 456
 
 ### Go
 
-[select.go](./select.go)
+[select.go](./go/select.go)
 
 ```go
 package main
@@ -1073,7 +1073,7 @@ Nope.
 
 ### Limbo
 
-[multret.b](./multret.b)
+[multret.b](./limbo/multret.b)
 
 ```c
 implement MultRet;
@@ -1110,7 +1110,7 @@ init(nil: ref Draw->Context, nil: list of string) {
 
 ### Go
 
-[multret.go](./multret.go)
+[multret.go](./go/multret.go)
 
 ```go
 package main
@@ -1164,7 +1164,7 @@ Nope.
 
 This is a modified version of the _'Lists'_ example in LimboByExample. [^2]
 
-[lists.b](./lists.b)
+[lists.b](./limbo/lists.b)
 
 ```c
 implement Lists;
@@ -1233,7 +1233,7 @@ Lens: 3, 3, 0
 
 ### Go
 
-[lists.go](./lists.go)
+[lists.go](./go/lists.go)
 
 ```go
 package main
@@ -1316,7 +1316,7 @@ Nope.
 
 ### Limbo
 
-[bctag.b](./bctag.b)
+[bctag.b](./limbo/bctag.b)
 
 ```c
 implement BreakContinueTag;
@@ -1365,7 +1365,7 @@ init(nil: ref Draw->Context, nil: list of string) {
 
 ### Go
 
-[bctag.go](./bctag.go)
+[bctag.go](./go/bctag.go)
 
 ```go
 package main
