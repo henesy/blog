@@ -1,6 +1,6 @@
 +++
-title = "History of go"
-date = "2020-06-20"
+title = "Go's History in Code"
+date = "2020-06-16"
 tags = [
 	"plan9",
 	"go",
@@ -8,7 +8,8 @@ tags = [
 +++
 
 
-# Code samples from Go-related languages
+
+# Go's History in Code
 
 This post intends to showcase programming patterns, or _stuff_, which is common between Newsqueak, Alef, Plan9 C, Limbo, and Go.
 
@@ -26,9 +27,11 @@ The unix port of squint is probably the most straightforward method, found [here
 
 To run a program from a prompt:
 
-	$ squint foo.nq
-	# output, if any
-	$
+```shell
+$ squint foo.nq
+# output, if any
+$
+```
 
 ### Alef
 
@@ -42,11 +45,13 @@ There are more resources on Plan9 2nd edition indexed [here](http://9.postnix.pw
 
 From a prompt on a complete Plan9 2e installation:
 
-	term% 8al foo.l
-	term% 8l co.8
-	term% 8.out
-	# output, if any
-	term%
+```shell
+term% 8al foo.l
+term% 8l co.8
+term% 8.out
+# output, if any
+term%
+```
 
 ### Plan9 C
 
@@ -54,19 +59,23 @@ The most maintained Plan9 fork, 9front, is found [here](http://9front.org/).
 
 From a 386 system:
 
-	term% 8c foo.c
-	term% 8l foo.8
-	term% 8.out
-	# output, if any
-	term%
+```shell
+term% 8c foo.c
+term% 8l foo.8
+term% 8.out
+# output, if any
+term%
+```
 
 From an amd64 system:
 
-	term% 6c foo.c
-	term% 6l foo.6
-	term% 6.out
-	# output, if any
-	term%
+```shell
+term% 6c foo.c
+term% 6l foo.6
+term% 6.out
+# output, if any
+term%
+```
 
 Arm uses `5?` in its commands, etc. as per the manuals 2c(1) and 2l(1).
 
@@ -76,10 +85,12 @@ Either the official Inferno [here](https://bitbucket.org/inferno-os/inferno-os/)
 
 From a prompt inside the Inferno VM:
 
-	; limbo foo.b
-	; foo
-	# output, if any
-	;
+```shell
+; limbo foo.b
+; foo
+# output, if any
+;
+```
 
 ### Go
 
@@ -87,9 +98,11 @@ Go can be acquired from https://golang.org
 
 To run a single file program:
 
-	$ go run foo.go
-	# output, if any
-	$
+```shell
+$ go run foo.go
+# output, if any
+$
+```
 
 ## Intro ­ tokenizing
 
@@ -101,7 +114,7 @@ Nope.
 
 [tok.l](./tok.l)
 
-```
+```c
 #include <alef.h>
 
 #define NTOKS 9
@@ -127,7 +140,7 @@ main(void)
 
 #### Output
 
-```
+```text
 abc » 'test 1 2 3' !
 abc
 »
@@ -142,7 +155,7 @@ abc
 
 [tok.c](./tok.c)
 
-```
+```c
 #include <u.h>
 #include <libc.h>
 
@@ -169,7 +182,7 @@ main(int, char*[])
 
 #### Output
 
-```
+```text
 abc ☺ 'test 1 2 3' !
 abc
 ☺
@@ -181,7 +194,7 @@ test 1 2 3
 
 [tok.b](./tok.b)
 
-```
+```text
 implement Tokenizing;
 
 include "sys.m";
