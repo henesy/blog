@@ -1,6 +1,6 @@
 [submodule "themes/origin"]
 	path = themes/origin
-	url = https://gitlab.com/asleeppiano/origin-hugo-theme.git
+	url = https://github.com/henesy/origin-hugo-theme
 [submodule "public"]
 	path = public
 	url = https://github.com/henesy/henesy.github.io
