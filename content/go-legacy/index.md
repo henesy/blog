@@ -507,6 +507,11 @@ func mirror(p Point) Point {
 	return Point{-1*p.x, -1*p.y}
 }
 
+func (p *Point) mirror() {
+	p.x *= -1
+	p.y *= -1
+}
+
 func main() {
 	p := Point{x: 3, y: -1}
 
@@ -522,6 +527,10 @@ func main() {
 
 	fmt.Println(p3)
 	fmt.Println(c.Point, c.Point.x, c.Point.y)
+
+	c.mirror()
+
+	fmt.Println(c)
 }
 ```
 
@@ -533,6 +542,7 @@ func main() {
 {{3 -1} 12}
 {-3 1}
 {3 -1} 3 -1
+{{-3 1} 12}
 ```
 
 ## Sending and receiving on channels

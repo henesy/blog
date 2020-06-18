@@ -18,19 +18,28 @@ func mirror(p Point) Point {
 	return Point{-1*p.x, -1*p.y}
 }
 
+func (p *Point) mirror() {
+	p.x *= -1
+	p.y *= -1
+}
+
 func main() {
 	p := Point{x: 3, y: -1}
-	
+
 	c := Circle{p, 12}
-	
+
 	p2 := c
-	
+
 	fmt.Println(p)
 	fmt.Println(c)
 	fmt.Println(p2)
-	
+
 	p3 := mirror(Point{c.x, c.y})
-	
+
 	fmt.Println(p3)
 	fmt.Println(c.Point, c.Point.x, c.Point.y)
+
+	c.mirror()
+
+	fmt.Println(c)
 }
