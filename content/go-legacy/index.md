@@ -7,6 +7,8 @@ tags = [
 ]
 +++
 
+TODO -- add direct references to literature which describes the features shown
+
 # Go's History in Code
 
 This post intends to showcase programming patterns, or _stuff_, which is common between Newsqueak, Alef, Plan9 C, Limbo, and Go.
@@ -474,7 +476,7 @@ as per the user's guide
 
 ### Plan9 C
 
-as per alef?
+as per alef and 9c compilers paper
 
 ### Limbo
 
