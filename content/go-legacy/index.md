@@ -598,11 +598,111 @@ include the ?channel operator as per user's guide
 
 ### Limbo
 
+[chans.b](./chans.b)
 
+```c
+implement Channels;
+
+include "sys.m";
+	sys: Sys;
+
+include "draw.m";
+
+Channels: module {
+	init: fn(nil: ref Draw->Context, nil: list of string);
+};
+
+max : con 10;
+
+printer(c: chan of int) {
+	i : int;
+	for(i = 0; i < max; i++){
+		n := <- c;
+		sys->print("%d ", n);
+	}
+	sys->print("\n");
+}
+
+pusher(c: chan of int) {
+	i : int;
+	for(i = 0; i < max; i++){
+		c <-= i * i;
+	}
+}
+
+init(nil: ref Draw->Context, nil: list of string) {
+	sys = load Sys Sys->PATH;
+
+	printChan := chan of int;
+
+	spawn printer(printChan);
+	spawn pusher(printChan);
+
+	sys->sleep(1);
+
+	exit;
+}
+```
+
+#### Output
+
+```text
+0 1 4 9 16 25 36 49 64 81
+```
 
 ### Go
 
+[chans.go](./chans.go)
 
+```go
+package main
+
+import (
+	"fmt"
+)
+
+const max = 10
+
+func printer(c chan int, done chan bool) {
+	for {
+		n, ok := <- c
+		if !ok {
+			break
+		}
+
+		fmt.Print(n, " ")
+	}
+
+	fmt.Println()
+
+	done <- true
+}
+
+func pusher(c chan int) {
+	for i := 0; i < max; i++ {
+		c <- i * i
+	}
+
+	close(c)
+}
+
+func main() {
+	c := make(chan int, 2)
+	done := make(chan bool)
+
+	go printer(c, done)
+	go pusher(c)
+
+	<- done
+}
+
+```
+
+#### Output
+
+```text
+0 1 4 9 16 25 36 49 64 81
+```
 
 ## Selecting on multiple channels
 
@@ -1062,11 +1162,115 @@ Nope.
 
 ### Limbo
 
-show list :: operation and iteration style
+This is a modified version of the _'Lists'_ example in LimboByExample. [^2]
+
+[lists.b](./lists.b)
+
+```c
+implement Lists;
+
+include "sys.m";
+	sys: Sys;
+	print: import sys;
+
+include "draw.m";
+
+Lists: module {
+	init: fn(nil: ref Draw->Context, nil: list of string);
+};
+
+init(nil: ref Draw->Context, nil: list of string) {
+	sys = load Sys Sys->PATH;
+
+	names: list of string;
+	ages: list of int;
+	persons: list of (string, int);
+
+	print("Lens: %d, %d, %d\n", len names, len ages, len persons);
+
+	names = "Spike" :: names;
+	ages = 27 :: ages;
+
+	names = "Ed" :: "Jet" :: names;
+	ages = 13 :: 36 :: ages;
+
+	print("Lens: %d, %d, %d\n", len names, len ages, len persons);
+
+	n := names;
+	a := ages;
+
+	while(n != nil && a != nil) {
+			persons = (hd n, hd a) :: persons;
+			n = tl n;
+			a = tl a;
+	}
+
+	print("Persons:\n");
+	for(; persons != nil; persons = tl persons) {
+		(name, age) := hd persons;
+		print("\t%s: %d\n", name, age);
+	}
+
+	print("Tmp lens: %d, %d\n", len n, len a);
+	print("Lens: %d, %d, %d\n", len names, len ages, len persons);
+
+	exit;
+}
+```
+
+#### Output
+
+```text
+Lens: 0, 0, 0
+Lens: 3, 3, 0
+Persons:
+	Spike: 27
+	Jet: 36
+	Ed: 13
+Tmp lens: 0, 0
+Lens: 3, 3, 0
+```
 
 ### Go
 
-show `for p, v := range X`, cap, append?
+[lists.go](./lists.go)
+
+```go
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	nums := make([]int, 0, 10)
+
+	fmt.Printf("Length = %d\nCapacity = %d\n", len(nums), cap(nums))
+
+
+	nums = append(nums, 1)
+	nums = append(nums, 2, 3, 4)
+
+	for i, n := range nums {
+		fmt.Printf("%d: %d\n", i, n)
+	}
+
+	fmt.Printf("Length = %d\nCapacity = %d\n", len(nums), cap(nums))
+}
+```
+
+#### Output
+
+```text
+Length = 0
+Capacity = 10
+0: 1
+1: 2
+2: 3
+3: 4
+Length = 4
+Capacity = 10
+```
 
 ## Modules / packages / separable compilation
 
@@ -1202,3 +1406,4 @@ func main() {
 ## References
 
 [^1]: https://github.com/henesy/awesome-inferno
+[^2]: https://github.com/henesy/limbobyexample
