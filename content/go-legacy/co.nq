@@ -1,0 +1,9 @@
+double := prog(n : int) {
+	print(2*n, "\n");
+};
+
+# Begin main logic
+begin double(7);
+begin double(9);
+begin double(11);
+

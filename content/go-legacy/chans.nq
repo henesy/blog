@@ -1,0 +1,28 @@
+max := 10;
+
+# Prints out numbers as they're received
+printer := prog(c: chan of int)
+{
+	i : int;
+	for(i = 0; i < max; i++){
+		n := <- c;
+		print(n, " ");
+	}
+	print("\n");
+};
+
+# Pushes values into the channel
+pusher := prog(c: chan of int)
+{
+	i : int;
+	for(i = 0; i < max; i++){
+		c <-= i * i;
+	}
+};
+
+# Begin main logic
+printChan := mk(chan of int);
+
+begin printer(printChan);
+begin pusher(printChan);
+

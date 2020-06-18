@@ -1,0 +1,43 @@
+max := 2;
+
+# Selects on two channels for both being able to receive and send
+selector := prog(prodChan : chan of int, recChan : chan of int, n : int){
+	i : int;
+
+	for(;;)
+		select{
+		case i =<- prodChan:
+			print("case recv	← ", i, "\n");
+
+		case recChan <-= n:
+			print("case send	→ ", n, "\n");
+		}
+};
+
+# Pushes `max` values into `prodChan`
+producer := prog(n : int, prodChan : chan of int){
+	i : int;
+
+	for(i = 0; i < max; i++){
+		print("pushed		→ ", n, "\n");
+		prodChan <-= n;
+	}
+};
+
+# Reads `max` values out of `recChan`
+receiver := prog(recChan : chan of int){
+	i : int;
+
+	# Stop receiving, manually
+	for(i = 0; i < max; i++)
+		print("received	→ ", <- recChan, "\n");
+};
+
+# Begin main logic
+prodChan := mk(chan of int);
+
+recChan := mk(chan of int);
+
+begin producer(123, prodChan);
+begin receiver(recChan);
+begin selector(prodChan, recChan, 456);
