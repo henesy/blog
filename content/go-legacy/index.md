@@ -130,7 +130,7 @@ $
 
 ## Intro \- tokenizing
 
-
+This section demonstrates standard library naïve tokenizing.
 
 ### Newsqueak
 
@@ -302,6 +302,8 @@ abc
 
 ## Asynchronous spawning
 
+Many of the languages which inspired Go contained simple abstractions for running functions in asychronous coroutines, processes, or threads.
+
 ### Newsqueak
 
 [co.nq](./co.nq)
@@ -386,6 +388,13 @@ threadmain(int, char*[])
 
 	threadexitsall(nil);
 }
+```
+
+#### Output
+
+```text
+14
+18
 ```
 
 ### Limbo
@@ -712,7 +721,7 @@ threadmain(int, char*[])
 
 #### Output
 
-```
+```text
 pushed		→ 123
 received	→ 456
 case send	→ 456
