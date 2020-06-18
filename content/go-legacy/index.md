@@ -20,6 +20,8 @@ Articles or posts talking about Go's predecessors have a habit of referring to t
 
 Note that this reference is not intended to be exhaustive.
 
+If I missed a feature or misreported a fact, feel free to open an issue/PR against [the blog on GitHub](http://github.com/henesy/blog).
+
 ## Building and running examples
 
 ### Newsqueak
@@ -481,7 +483,7 @@ as per alef and 9c compilers paper
 
 ### Limbo
 
-believe yes, need to find examples
+Nope.
 
 ### Go
 
@@ -1292,11 +1294,197 @@ show C, maybe with the `#pragma` src thing used by libraries
 
 ### Limbo
 
-show importing of a .dis using a .m file and then loading a .dis to run as/by the shell module
+This is a slightly reduced version of the _'Modules'_ example in LimboByExample. [^2]
+
+[modules.b](./limbo/modules/modules.b)
+
+```c
+implement Modules;
+
+include "sys.m";
+include "draw.m";
+
+# Note the lack of `include "persons.m";`
+include "towns.m";
+
+sys: Sys;
+print: import sys;
+
+persons: Persons;
+Person: import persons;
+
+towns: Towns;
+Town: import towns;
+
+Modules: module {
+	init: fn(nil: ref Draw->Context, nil: list of string);
+};
+
+init(nil: ref Draw->Context, nil: list of string) {
+	sys = load Sys Sys->PATH;
+
+	persons = load Persons "./persons.dis";
+	towns = load Towns "./towns.dis";
+
+	persons->init();
+	towns->init();
+
+	print("%d\n", persons->getpop());
+	print("%d\n", towns->persons->getpop());
+
+	p := persons->mkperson();
+	p.name	= "Spike";
+	p.age	= 27;
+
+	print("%d\n", persons->getpop());
+	print("%d\n", towns->persons->getpop());
+
+	t := towns->mktown();
+	t.pop = array[] of {p, ref Person(13, "Ed")};
+	t.name = "Mars";
+
+	print("%s\n", t.stringify());
+
+	exit;
+}
+```
+
+[persons.b](./limbo/modules/persons.b)
+
+```c
+implement Persons;
+
+include "persons.m";
+
+population: int;
+
+init() {
+	population = 0;
+}
+
+getpop(): int {
+	return population;
+}
+
+mkperson(): ref Person {
+	population++;
+	return ref Person;
+}
+
+Person.stringify(p: self ref Person): string {
+	return p.name;
+}
+```
+
+[towns.m](./limbo/modules/towns.m)
+
+```c
+include "persons.m";
+
+Towns: module {
+	init: fn();
+	mktown: fn(): ref Town;
+
+	persons: Persons;
+
+	Town: adt {
+		pop: array of ref Persons->Person;
+		name: string;
+		stringify: fn(t: self ref Town): string;
+	};
+};
+```
+
+[towns.b](./limbo/modules/towns.b)
+
+```c
+implement Towns;
+
+include "towns.m";
+
+init() {
+	persons = load Persons "./persons.dis";
+}
+
+mktown(): ref Town {
+	return ref Town;
+}
+
+Town.stringify(t: self ref Town): string {
+	Person: import persons;
+
+	s := "Name: " + t.name + "\nSize: " + string len t.pop + "\nMembers:";
+
+	for(i := 0; i < len t.pop; i++)
+		s += "\n→ " + t.pop[i].stringify();
+
+	return s;
+}
+```
+
+#### Output
+
+For this example, to build and run from Inferno you'll use [mk(1)](http://man.cat-v.org/inferno/1/mk):
+
+```shell
+; mk
+limbo -I/module -gw modules.b
+limbo -I/module -gw persons.b
+limbo -I/module -gw towns.b
+; modules
+0
+0
+1
+0
+Name: Mars
+Size: 2
+Members:
+→ Spike
+→ Ed
+;
+```
 
 ### Go
 
-show packages
+This example just shows including a local package.
+
+Modern Go recommends using the module system [^3] and most public Go projects will have import paths in forms such as `"github.com/foo/bar"`.
+
+[main.go](./go/modules/main.go)
+
+```go
+package main
+
+import (
+util	"./util"
+	"fmt"
+)
+
+func main() {
+	fmt.Print("Hello ")
+	util.Smile()
+}
+```
+
+[util.go](./go/modules/util/util.go)
+
+```go
+package util
+
+import (
+	"fmt"
+)
+
+func Smile() {
+	fmt.Println("☺")
+}
+```
+
+#### Output
+
+```text
+Hello ☺
+```
 
 ## Break and continue to tag
 
@@ -1407,3 +1595,4 @@ func main() {
 
 [^1]: https://github.com/henesy/awesome-inferno
 [^2]: https://github.com/henesy/limbobyexample
+[^3]: https://blog.golang.org/using-go-modules
