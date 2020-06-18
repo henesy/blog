@@ -2,8 +2,9 @@
 title = "Go's History in Code"
 date = "2020-06-16"
 tags = [
-	"plan9",
 	"go",
+	"plan9",
+	"inferno",
 ]
 +++
 
