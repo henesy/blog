@@ -7,8 +7,6 @@ tags = [
 ]
 +++
 
-
-
 # Go's History in Code
 
 This post intends to showcase programming patterns, or _stuff_, which is common between Newsqueak, Alef, Plan9 C, Limbo, and Go.
@@ -16,6 +14,8 @@ This post intends to showcase programming patterns, or _stuff_, which is common 
 All of these code snippets should be complete as shown and compilable/runnable in the state presented.
 
 Articles or posts talking about Go's predecessors have a habit of referring to the languages listed above, but can fail to provide concrete resources for seeing how these languages work. This post aims to provide a reference for such languages.
+
+Note that this reference is not intended to be exhaustive.
 
 ## Building and running examples
 
@@ -462,7 +462,7 @@ func main() {
 14
 ```
 
-## Unnamed struct members
+## Unnamed struct members and promotion
 
 ### Newsqueak
 
@@ -470,19 +470,68 @@ Nope.
 
 ### Alef
 
-
+as per the user's guide
 
 ### Plan9 C
 
-
+as per alef?
 
 ### Limbo
 
-
+maybe?
 
 ### Go
 
+[unnamed.go](./unnamed.go)
 
+```go
+package main
+
+import (
+	"fmt"
+)
+
+type Point struct {
+	x	int
+	y	int
+}
+
+type Circle struct {
+	Point
+	radius	uint
+}
+
+func mirror(p Point) Point {
+	return Point{-1*p.x, -1*p.y}
+}
+
+func main() {
+	p := Point{x: 3, y: -1}
+
+	c := Circle{p, 12}
+
+	p2 := c
+
+	fmt.Println(p)
+	fmt.Println(c)
+	fmt.Println(p2)
+
+	p3 := mirror(Point{c.x, c.y})
+
+	fmt.Println(p3)
+	fmt.Println(c.Point, c.Point.x, c.Point.y)
+}
+```
+
+#### Output
+
+```text
+{3 -1}
+{{3 -1} 12}
+{{3 -1} 12}
+{-3 1}
+{3 -1} 3 -1
+```
 
 ## Sending and receiving on channels
 
@@ -528,7 +577,7 @@ begin pusher(printChan);
 
 ### Alef
 
-
+include the ?channel operator as per user's guide
 
 ### Plan9 C
 
@@ -901,7 +950,7 @@ show using tuples
 
 ### Alef
 
-??
+show using tuple type as per user's guide
 
 ### Plan9 C
 
@@ -946,7 +995,39 @@ init(nil: ref Draw->Context, nil: list of string) {
 
 ### Go
 
-show normal multiple returns from function signature
+[multret.go](./multret.go)
+
+```go
+package main
+
+import (
+	"fmt"
+)
+
+func foo()(n int, s string) {
+	n = 4
+	s = "☺"
+	return
+}
+
+func bar() (a, b, c string) {
+	return "a", "b", "c"
+}
+
+func main() {
+	n, s := foo()
+
+	a, b, c := bar()
+
+	fmt.Println(n, s, a, b, c)
+}
+```
+
+#### Output
+
+```text
+4 ☺ a b c
+```
 
 ## Lists
 
@@ -1002,7 +1083,7 @@ show packages
 
 ### Newsqueak
 
-
+probably not
 
 ### Alef
 
@@ -1018,7 +1099,43 @@ show packages
 
 ### Go
 
+[bctag.go](./bctag.go)
 
+```go
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	i := 0
+
+	loop:
+	for {
+		i++
+		switch {
+		case i % 2 == 0:
+			continue loop
+
+		case i > 10:
+			break loop
+		}
+
+		fmt.Println(i)
+	}
+}
+```
+
+#### Output
+
+```text
+1
+3
+5
+7
+9
+```
 
 ## References
 
