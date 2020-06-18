@@ -13,17 +13,20 @@ tags = [
 
 This post intends to showcase programming patterns, or _stuff_, which is common between Newsqueak, Alef, Plan9 C, Limbo, and Go.
 
-(??) ­ Include different Plan9 edition releases to see the libc evolve?
-
 All of these code snippets should be complete as shown and compilable/runnable in the state presented.
 
-Articles or posts talking about Go have a habit of referring to the languages cited
+Articles or posts talking about Go's predecessors have a habit of referring to the languages listed above, but can fail to provide concrete resources for seeing how these languages work. This post aims to provide a reference for such languages.
 
 ## Building and running examples
 
 ### Newsqueak
 
-The unix port of squint is probably the most straightforward method, found [here](https://github.com/rwos/newsqueak). The papers describing Newsqueak are [here](https://swtch.com/~rsc/thread/newsqueak.pdf) and [here](https://swtch.com/~rsc/thread/newsquimpl.pdf).
+The unix port of squint is probably the most straightforward method, found [here](https://github.com/rwos/newsqueak).
+
+The papers describing Newsqueak:
+
+- <https://swtch.com/~rsc/thread/newsqueak.pdf>
+- <https://swtch.com/~rsc/thread/newsquimpl.pdf>
 
 To run a program from a prompt:
 
@@ -35,13 +38,15 @@ $
 
 ### Alef
 
-Your best bet is probably installing a Plan9 2nd edition VM. A text guide for this process is in [a prior blog post](https://seh.dev/2018/03/19/0/) and a video guide to installation is [here](https://www.youtube.com/watch?v=W00TnQ91nj8).
+Your best bet at trying Alef is installing a Plan9 2nd edition (2e) virtual machine. A text guide for this process is in [a prior blog post](https://seh.dev/plan9-2e/) and [a video guide to installation](https://www.youtube.com/watch?v=W00TnQ91nj8).
 
-There's a work-in-progress port of Alef from 2e to 9front/386 which can be found on the [public grid](http://wiki.9gridchan.org/public_grid/index.html) griddisk at `/burnzez/rep/alef/root` and maybe `/burnzez/alef`. Griddisk is accessible over 9p via `tcp!45.63.75.148!9564`. You can more easily access the grid from unix via the [gridnix scripts](https://github.com/henesy/grid-unix).
+Papers on Alef: <http://doc.cat-v.org/plan_9/2nd_edition/papers/alef/>
 
-Papers on Alef are [here](http://doc.cat-v.org/plan_9/2nd_edition/papers/alef/).
+More resources on 2e: <http://9.postnix.pw/hist/2e/>
 
-There are more resources on Plan9 2nd edition indexed [here](http://9.postnix.pw/hist/2e/).
+Direct download to a VirtualBox image of 2e: <http://9.postnix.pw/hist/2e/plan92e_vbox.tgz>
+
+There's also a work-in-progress port of Alef from 2e to 9front/386 which can be found on the [public grid](http://wiki.9gridchan.org/public_grid/index.html) griddisk at `/burnzez/rep/alef/root` and maybe `/burnzez/alef`. Griddisk is accessible over 9p via `tcp!45.63.75.148!9564`. You can more easily access the grid from unix via the [gridnix scripts](https://github.com/henesy/grid-unix).
 
 From a prompt on a complete Plan9 2e installation:
 
@@ -55,9 +60,16 @@ term%
 
 ### Plan9 C
 
-The most maintained Plan9 fork, 9front, is found [here](http://9front.org/).
+The most actively maintained Plan9 fork [is 9front](http://9front.org/).
 
-From a 386 system:
+Papers describing the Plan9 C dialect:
+
+- <http://doc.cat-v.org/plan_9/programming/c_programming_in_plan_9>
+- <http://doc.cat-v.org/plan_9/4th_edition/papers/compiler>
+
+The Plan9 C dialect was partially described [in a previous blog post](https://seh.dev/porting/).
+
+From a 386 9front system:
 
 ```shell
 term% 8c foo.c
@@ -67,7 +79,7 @@ term% 8.out
 term%
 ```
 
-From an amd64 system:
+From an amd64 9front system:
 
 ```shell
 term% 6c foo.c
@@ -77,13 +89,23 @@ term% 6.out
 term%
 ```
 
-Arm uses `5?` in its commands, etc. as per the manuals 2c(1) and 2l(1).
+Arm uses `5c` and `5l` for compiling/linking respectively as per the manuals [2c(1)](http://man.cat-v.org/9front/1/2c) and [2l(1)](http://man.cat-v.org/9front/1/2l).
 
 ### Limbo
 
-Either the official Inferno [here](https://bitbucket.org/inferno-os/inferno-os/) or the purgatorio fork [here](https://code.9front.org/hg/purgatorio).
+The official Inferno repository: <https://bitbucket.org/inferno-os/inferno-os/>
 
-From a prompt inside the Inferno VM:
+The purgatorio Inferno fork: <https://code.9front.org/hg/purgatorio>
+
+There are a variety of other resources for Inferno and Limbo available [^1].
+
+Papers describing Limbo:
+
+- <http://doc.cat-v.org/inferno/4th_edition/limbo_language/descent>
+- <http://doc.cat-v.org/inferno/4th_edition/limbo_language/limbo>
+- <http://doc.cat-v.org/inferno/4th_edition/limbo_language/addendum>
+
+From a prompt inside the Inferno virtual machine (or native):
 
 ```shell
 ; limbo foo.b
@@ -94,7 +116,9 @@ From a prompt inside the Inferno VM:
 
 ### Go
 
-Go can be acquired from https://golang.org
+Go can be acquired from <https://golang.org>.
+
+The specification for Go: <https://golang.org/ref/spec>.
 
 To run a single file program:
 
@@ -104,7 +128,9 @@ $ go run foo.go
 $
 ```
 
-## Intro ­ tokenizing
+## Intro \- tokenizing
+
+
 
 ### Newsqueak
 
@@ -882,3 +908,6 @@ show importing of a .dis using a .m file and then loading a .dis to run as/by th
 
 show packages
 
+## References
+
+[^1]: https://github.com/henesy/awesome-inferno
