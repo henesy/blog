@@ -194,7 +194,7 @@ test 1 2 3
 
 [tok.b](./tok.b)
 
-```text
+```c
 implement Tokenizing;
 
 include "sys.m";
@@ -225,7 +225,7 @@ init(nil: ref Draw->Context, nil: list of string) {
 
 #### Output
 
-```
+```text
 abc ☺ 'test 1 2 3' !
 abc
 ☺
@@ -240,7 +240,7 @@ abc
 
 [tok.go](./tok.go)
 
-```
+```go
 package main
 
 import (
@@ -263,7 +263,7 @@ func main() {
 
 #### Output
 
-```
+```text
 abc ☺ 'test 1 2 3' !
 abc
 ☺
@@ -280,7 +280,7 @@ abc
 
 [co.nq](./co.nq)
 
-```
+```smalltalk
 double := prog(n : int) {
 	print(2*n, "\n");
 };
@@ -293,7 +293,7 @@ begin double(11);
 
 #### Output
 
-```
+```text
 14
 18
 22
@@ -303,7 +303,7 @@ begin double(11);
 
 [co.l](./co.l)
 
-```
+```c
 #include <alef.h>
 
 void
@@ -328,7 +328,7 @@ main(void)
 
 #### Output
 
-```
+```text
 18
 26
 22
@@ -339,7 +339,7 @@ main(void)
 
 [co.c](./co.c)
 
-```
+```c
 #include <u.h>
 #include <libc.h>
 #include <thread.h>
@@ -366,7 +366,7 @@ threadmain(int, char*[])
 
 [co.b](./co.b)
 
-```
+```c
 implement Coroutines;
 
 include "sys.m";
@@ -395,7 +395,7 @@ init(nil: ref Draw->Context, nil: list of string) {
 
 #### Output
 
-```
+```text
 14
 ```
 
@@ -403,7 +403,7 @@ init(nil: ref Draw->Context, nil: list of string) {
 
 [co.go](./co.go)
 
-```
+```go
 package main
 
 import (
@@ -423,7 +423,7 @@ func main() {
 
 #### Output
 
-```
+```text
 14
 ```
 
@@ -455,7 +455,7 @@ Nope.
 
 [chans.nq](./chans.nq)
 
-```
+```smalltalk
 max := 10;
 
 # Prints out numbers as they're received
@@ -487,7 +487,7 @@ begin pusher(printChan);
 
 #### Output
 
-```
+```text
 0 1 4 9 16 25 36 49 64 81
 ```
 
@@ -513,7 +513,7 @@ begin pusher(printChan);
 
 [select.nq](./select.nq)
 
-```
+```smalltalk
 max := 2;
 
 # Selects on two channels for both being able to receive and send
@@ -561,7 +561,7 @@ begin selector(prodChan, recChan, 456);
 
 #### Output
 
-```
+```text
 pushed		→ 123
 pushed		→ 123
 case recv	← 123
@@ -580,7 +580,7 @@ case recv	← 123
 
 [select.c](./select.c)
 
-```
+```c
 #include <u.h>
 #include <libc.h>
 #include <thread.h>
@@ -702,7 +702,7 @@ case recv	← 123
 
 [select.b](./select.b)
 
-```
+```c
 implement Select;
 
 include "sys.m";
@@ -762,7 +762,7 @@ init(nil: ref Draw->Context, nil: list of string) {
 
 #### Output
 
-```
+```text
 pushed		→ 123
 case send	→ 456
 received	→ 456
@@ -795,7 +795,7 @@ Nope.
 
 [multret.b](./multret.b)
 
-```
+```c
 implement MultRet;
 
 include "sys.m";
@@ -824,7 +824,7 @@ init(nil: ref Draw->Context, nil: list of string) {
 
 #### Output
 
-```
+```text
 3, 7 → 7, 3
 ```
 
