@@ -480,7 +480,7 @@ as per alef and 9c compilers paper
 
 ### Limbo
 
-maybe?
+believe yes, need to find examples
 
 ### Go
 
@@ -670,7 +670,7 @@ case recv	← 123
 
 ### Alef
 
-
+show alt in alef on send and receive
 
 ### Plan9 C
 
@@ -956,9 +956,11 @@ done.
 
 ## Multiple returns
 
+C in particular is an offender of not enabling returns without a named type (`struct`) or allocated memory in place to facilitate multiple values being returned to a caller.
+
 ### Newsqueak
 
-show using tuples
+Nope.
 
 ### Alef
 
@@ -1043,9 +1045,11 @@ func main() {
 
 ## Lists
 
+This section demonstrates syntactic properties regarding lists or which are somewhat list-like.
+
 ### Newsqueak
 
-???
+Nope.
 
 ### Alef
 
@@ -1053,13 +1057,7 @@ show `for(each X in L){}` format
 
 ### Plan9 C
 
-show generic C linked list style
-
-```
-List *l;
-for(l = mylist; l != nil; l = l->next)
-	print("%d ", *(int*)l->datum);
-```
+Nope.
 
 ### Limbo
 
@@ -1067,13 +1065,17 @@ show list :: operation and iteration style
 
 ### Go
 
-show `for p, v := range X`
+show `for p, v := range X`, cap, append?
 
 ## Modules / packages / separable compilation
 
+Although the idea of separating source across files is fairly universal in modern programming languages, this section demonstrates the semantics shared between these languages.
+
 ### Newsqueak
 
-???
+as per newsqueak paper, the `include "file name"`
+
+very primitive
 
 ### Alef
 
@@ -1095,19 +1097,66 @@ show packages
 
 ### Newsqueak
 
-probably not
+Nope.
 
 ### Alef
 
+as per user's guide, show `break n` for `n` levels of nested control
 
+no continue
 
 ### Plan9 C
 
-
+Nope.
 
 ### Limbo
 
+[bctag.b](./bctag.b)
 
+```c
+implement BreakContinueTag;
+
+include "sys.m";
+	sys: Sys;
+
+include "draw.m";
+
+BreakContinueTag: module {
+	init: fn(nil: ref Draw->Context, nil: list of string);
+};
+
+init(nil: ref Draw->Context, nil: list of string) {
+	sys = load Sys Sys->PATH;
+
+	i := 0;
+
+	loop:
+	for(;;){
+		i++;
+		case i {
+		11 =>
+			break loop;
+		* =>
+			if(i % 2 == 0)
+				continue loop;
+		}
+
+		sys->print("%d\n", i);
+	}
+
+	exit;
+}
+```
+
+#### Output
+
+```text
+1
+3
+5
+7
+9
+```
 
 ### Go
 
