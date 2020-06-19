@@ -1,0 +1,11 @@
+</$objtype/mkfile
+
+BIN = ./
+
+TARG = modules-example
+
+OFILES = main.$O
+
+CFLAGS = $CFLAGS -I ./libutil
+
+</sys/src/cmd/mkone

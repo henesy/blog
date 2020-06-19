@@ -479,7 +479,86 @@ as per the user's guide
 
 ### Plan9 C
 
-as per alef and 9c compilers paper
+This example is partially derived from the unnamed subunion example presented in the _'Plan 9 C Compilers'_ paper. [^4]
+
+[unnamed.c](./plan9c/unnamed.c)
+
+```c
+#include <u.h>
+#include <libc.h>
+
+double π = 3.14;
+
+typedef struct Point Point;
+typedef struct Circle Circle;
+typedef struct Number Number;
+typedef struct Value Value;
+
+struct Number {
+	union {
+		double dval;
+		float  fval;
+		long   lval;
+	};
+};
+
+struct Value {
+	Number;
+};
+
+struct Point {
+	int	x;
+	int	y;
+};
+
+struct Circle {
+	Point;
+	int	radius;
+};
+
+Point
+mirror(Point p)
+{
+	return (Point) {-1 * p.x, -1 * p.y};
+}
+
+void
+main(int, char*[])
+{
+	Point p₀ = {.x = 3, .y = -1};
+
+	Circle c = {p₀, 12};
+
+	Point p₁ = c.Point;
+
+	print("p₀ = (%d,%d)\nradius = %d\n", c.x, c.y, c.radius);
+	print("p₁ = (%d,%d)\n", p₁.x, p₁.y);
+
+	Point p₂ = mirror((Point){c.x, c.y});
+
+	print("p₂ = (%d,%d)\n", p₂.x, p₂.y);
+
+	Value v = {π};
+
+	print("value = %f\nd = %p\nf = %p\nl = %p\n",
+				v.dval, &v.dval, &v.fval, &v.lval);
+
+	exits(nil);
+}
+```
+
+#### Output
+
+```text
+p₀ = (3,-1)
+radius = 12
+p₁ = (3,-1)
+p₂ = (-3,1)
+value = 3.140000
+d = 7fffffffeed0
+f = 7fffffffeed0
+l = 7fffffffeed0
+```
 
 ### Limbo
 
@@ -596,7 +675,70 @@ include the ?channel operator as per user's guide
 
 ### Plan9 C
 
+[chans.c](./plan9c/chans.c)
 
+```c
+#include <u.h>
+#include <libc.h>
+#include <thread.h>
+
+const max = 10;
+
+void printer(void *v)
+{
+	Channel *printchan = (Channel*) v;
+	int i, n;
+
+	for(i = 0; i < max; i++){
+		recv(printchan, &n);
+		print("received → %d\n", n);
+	}
+
+	threadexits(nil);
+}
+
+void pusher(void *v)
+{
+	Channel *printchan = (Channel*) v;
+	int i, *n;
+	n = calloc(1, sizeof (int));
+
+	for(i = 0; i < max; i++){
+		*n = i * i;
+		send(printchan, n);
+	}
+
+	threadexits(nil);
+}
+
+void
+threadmain(int, char*[]) {
+	int bufsize = 2;
+	Channel *printchan = chancreate(sizeof (int), 0);
+
+	proccreate(printer,	printchan,	4096);
+	proccreate(pusher,	printchan,	4096);
+
+	sleep(100);
+
+	threadexitsall(nil);
+}
+```
+
+#### Output
+
+```text
+received → 0
+received → 1
+received → 4
+received → 9
+received → 16
+received → 25
+received → 36
+received → 49
+received → 64
+received → 81
+```
 
 ### Limbo
 
@@ -1321,7 +1463,102 @@ show `#include` and headers, etc. like C
 
 ### Plan9 C
 
-show C, maybe with the `#pragma` src thing used by libraries
+There are several compiler features which show themselves in the header: `#pragma src` and `#pragma lib`. Further reading on these can be found in the _'Plan 9 C Compilers'_ paper. [^4]
+
+Note that these `#pragma` directives typically are found with full system paths provided.
+
+[main.c](./plan9c/modules/main.c)
+
+```c
+#include <u.h>
+#include <libc.h>
+#include "./libutil/util.h"
+
+void
+main(int, char*[])
+{
+	print("Hello ");
+	smiley();
+
+	exits(nil);
+}
+```
+
+[util.h](./plan9c/modules/libutil/util.h)
+
+```c
+#pragma src "./libutil"
+#pragma lib "./libutil/libutil.a"
+
+void smiley(void);
+```
+
+[util.c](./plan9c/modules/libutil/util.c)
+
+```c
+#include <u.h>
+#include <libc.h>
+#include "util.h"
+
+void
+smiley(void)
+{
+	print("☺\n");
+}
+```
+
+[mkfile (main)](./plan9c/modules/mkfile)
+
+```make
+</$objtype/mkfile
+
+BIN = ./
+
+TARG = modules-example
+
+OFILES = main.$O
+
+CFLAGS = $CFLAGS -I ./libutil
+
+</sys/src/cmd/mkone
+```
+
+[mkfile (libutil)](./plan9c/modules/libutil/mkfile)
+
+```make
+</$objtype/mkfile
+
+LIB = ./libutil.a
+
+HFILES = util.h
+
+OFILES = util.$O
+
+</sys/src/cmd/mklib
+```
+
+#### Output
+
+For this example, to build and run from 9front you'll use [mk(1)](http://man.cat-v.org/9front/1/mk):
+
+```shell
+tenshi% lc
+libutil/	main.c		mkfile
+tenshi% cd libutil
+tenshi% mk
+./libutil.a doesn't exist: assuming it will be an archive
+6c -FTVw util.c
+ar vu ./libutil.a util.6
+ar: creating ./libutil.a
+a - util.6
+tenshi% cd ..
+tenshi% mk
+6c -FTVw -I ./libutil main.c
+6l  -o 6.out main.6
+tenshi% 6.out
+Hello ☺
+tenshi%
+```
 
 ### Limbo
 
@@ -1451,6 +1688,21 @@ Town.stringify(t: self ref Town): string {
 
 	return s;
 }
+```
+
+[mkfile](./limbo/modules/mkfile)
+
+```make
+</mkconfig
+
+DISBIN = ./
+
+TARG=\
+	modules.dis\
+	persons.dis\
+	towns.dis\
+
+</mkfiles/mkdis
 ```
 
 #### Output
@@ -1627,3 +1879,4 @@ func main() {
 [^1]: https://github.com/henesy/awesome-inferno
 [^2]: https://github.com/henesy/limbobyexample
 [^3]: https://blog.golang.org/using-go-modules
+[^4]: http://doc.cat-v.org/plan_9/4th_edition/papers/compiler

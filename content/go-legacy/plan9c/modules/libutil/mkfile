@@ -1,0 +1,9 @@
+</$objtype/mkfile
+
+LIB = ./libutil.a
+
+HFILES = util.h
+
+OFILES = util.$O
+
+</sys/src/cmd/mklib
