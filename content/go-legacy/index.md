@@ -8,8 +8,6 @@ tags = [
 ]
 +++
 
-TODO -- add direct references to literature which describes the features shown
-
 # Go's History in Code
 
 This post intends to showcase programming patterns, or _stuff_, which is common between Newsqueak, Alef, Plan9 C, Limbo, and Go.
@@ -671,7 +669,61 @@ begin pusher(printChan);
 
 ### Alef
 
-include the ?channel operator as per user's guide
+Note the existence, even if not demonstrated, of the `?` operator for channels as per the _"Alef User's Guide"_. [^5]
+
+```c
+#include <alef.h>
+
+int max = 10;
+
+void
+pusher(chan(int) printchan)
+{
+	int i;
+	for(i = 0; i < max; i++)
+		printchan <-= i * i;
+}
+
+void
+printer(chan(int) printchan)
+{
+	int n, i;
+
+	for(i = 0; i < max; i++){
+		n = <-printchan;
+		print("%d\n", n);
+	}
+}
+
+void
+main(void)
+{
+	chan(int) printchan;
+	alloc printchan;
+
+	par {
+		pusher(printchan);
+		printer(printchan);
+	}
+
+	sleep(5);
+}
+```
+
+#### Output
+
+```text
+0
+1
+4
+9
+16
+25
+36
+49
+64
+81
+```
 
 ### Plan9 C
 
@@ -1880,3 +1932,4 @@ func main() {
 [^2]: https://github.com/henesy/limbobyexample
 [^3]: https://blog.golang.org/using-go-modules
 [^4]: http://doc.cat-v.org/plan_9/4th_edition/papers/compiler
+[^5]: http://doc.cat-v.org/plan_9/2nd_edition/papers/alef/ug
