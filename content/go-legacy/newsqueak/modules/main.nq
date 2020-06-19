@@ -1,0 +1,4 @@
+include "util.nq";
+
+print("Hello ");
+smiley();

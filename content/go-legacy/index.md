@@ -1280,9 +1280,40 @@ Although the idea of separating source across files is fairly universal in moder
 
 ### Newsqueak
 
-as per newsqueak paper, the `include "file name"`
+Newsqueak can include files as text. This text can be assigned to a value or otherwise is inserted into the calling file as text and potentially interpreted as source.
 
-very primitive
+[main.nq](./newsqueak/modules/main.nq)
+
+```smalltalk
+include "util.nq";
+
+print("Hello ");
+smiley();
+```
+
+[util.nq](./newsqueak/modules/util.nq)
+
+```smalltalk
+smiley := prog() {
+	smile := include "smile";
+	print(smile);
+};
+
+;
+```
+
+[smile](./newsqueak/modules/smile)
+
+```text
+"☺"
+```
+
+#### Output
+
+```text
+Hello
+☺
+```
 
 ### Alef
 

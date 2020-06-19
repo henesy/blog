@@ -1,0 +1,6 @@
+smiley := prog() {
+	smile := include "smile";
+	print(smile);
+};
+
+;
