@@ -669,7 +669,7 @@ begin pusher(printChan);
 
 ### Alef
 
-Note the existence, even if not demonstrated, of the `?` operator for channels as per the _"Alef User's Guide"_. [^5]
+Note the existence, even if not demonstrated, of the `?` operator and `[n]` syntax for channels as per the _"Alef User's Guide"_. [^5]
 
 ```c
 #include <alef.h>
@@ -967,7 +967,77 @@ case recv	← 123
 
 ### Alef
 
-show alt in alef on send and receive
+[select.l](touch ./alef/select.l)
+
+```c
+#include <alef.h>
+
+int max = 2;
+
+void
+selector(chan(int) prodchan, chan(int) recchan, int n)
+{
+	int i;
+
+	for(;;)
+		alt{
+		case i =<- prodchan:
+			print("case recv	← %d\n", i);
+
+		case recchan <-= n:
+			print("case send	→ %d\n", n);
+		}
+}
+
+void
+producer(int n, chan(int) prodchan)
+{
+	int i;
+	for(i = 0; i < max; i++){
+		print("pushed	→ %d\n", n);
+		prodchan <-= n;
+	}
+}
+
+void
+receiver(chan(int) recchan)
+{
+	int i;
+	for(i = 0; i < max; i++){
+		int n;
+		n = <- recchan;
+		print("received	→ %d\n", n);
+	}
+}
+
+void
+main(void)
+{
+	chan(int) prodchan;
+	chan(int) recchan;
+	alloc prodchan;
+	alloc recchan;
+
+	proc producer(123, prodchan);
+	proc receiver(recchan);
+	proc selector(prodchan, recchan, 456);
+
+	sleep(15);
+}
+```
+
+#### Output
+
+```text
+pushed		→ 123
+case send	→ 456
+case recv	← 123
+received	→ 456
+received	→ 456
+pushed		→ 123
+case send	→ 456
+case recv	← 123
+```
 
 ### Plan9 C
 
