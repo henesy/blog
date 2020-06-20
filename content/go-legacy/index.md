@@ -669,7 +669,9 @@ begin pusher(printChan);
 
 ### Alef
 
-Note the existence, even if not demonstrated, of the `?` operator and `[n]` syntax for channels as per the _"Alef User's Guide"_. [^5]
+Note the `?` and `[n]` syntax for channels as defined in the _"Alef User's Guide"_. [^5]
+
+[chans.l](./alef/chans.l)
 
 ```c
 #include <alef.h>
@@ -699,14 +701,22 @@ void
 main(void)
 {
 	chan(int) printchan;
-	alloc printchan;
+	chan(int)[2] bufchan;
+	alloc printchan, bufchan;
 
 	par {
 		pusher(printchan);
 		printer(printchan);
 	}
 
-	sleep(5);
+	while(bufchan?){
+		i = ++i * ++i;
+		bufchan <- = i;
+		print("sent %d\n", i);
+	}
+
+	while(?bufchan)
+		print("received %d\n", <-bufchan);
 }
 ```
 
@@ -723,6 +733,10 @@ main(void)
 49
 64
 81
+sent 2
+sent 12
+received 2
+received 12
 ```
 
 ### Plan9 C
@@ -1331,7 +1345,35 @@ Nope.
 
 ### Alef
 
-show using tuple type as per user's guide
+This example is derived from the tuple example found in the _"Alef User's Guide"_. [^5]
+
+[multret.l](./alef/multret.l)
+
+```c
+#include <alef.h>
+
+tuple(int, byte*, byte*)
+foo()
+{
+	return (7, "fußbol", "skål");
+}
+
+void
+main(void)
+{
+	int n;
+	byte *game, *cheer;
+
+	(n, game, cheer) = foo();
+	print("(%d %s %s)\n", n, game, cheer);
+}
+```
+
+#### Output
+
+```text
+(7 fußbol skål)
+```
 
 ### Plan9 C
 
@@ -1410,9 +1452,9 @@ func main() {
 4 ☺ a b c
 ```
 
-## Lists
+## Lists / iteration
 
-This section demonstrates syntactic properties regarding lists or which are somewhat list-like.
+This section demonstrates syntactic properties regarding lists or list-like iterative logic.
 
 ### Newsqueak
 
@@ -1420,7 +1462,30 @@ Nope.
 
 ### Alef
 
-show `for(each X in L){}` format
+This example is derived from the iterator example in the _"Alef User's Guide"_. [^5]
+
+[lists.l](./alef/lists.l)
+
+```c
+#include <alef.h>
+
+void
+main(void)
+{
+	int i, arr[10];
+
+	arr[i = 0::10] = i * i;
+	print("%d ", arr[0::10]);
+
+	print("\n");
+}
+```
+
+#### Output
+
+```text
+0 1 4 9 16 25 36 49 64 81
+```
 
 ### Plan9 C
 

@@ -25,12 +25,20 @@ void
 main(void)
 {
 	chan(int) printchan;
-	alloc printchan;
+	chan(int)[2] bufchan;
+	alloc printchan, bufchan;
 
 	par {
 		pusher(printchan);
 		printer(printchan);
 	}
 
-	sleep(5);
+	while(bufchan?){
+		i = ++i * ++i;
+		bufchan <- = i;
+		print("sent %d\n", i);
+	}
+
+	while(?bufchan)
+		print("received %d\n", <-bufchan);
 }
