@@ -724,7 +724,7 @@ init(nil: ref Draw->Context, nil: list of string) {
 
 ### Go
 
-Note that Go is the only language to support the optional `ok` value when reading out of a channel.
+Note that Go is not the only language to support the optional `ok` value when reading out of a channel, the Plan9 C functions `send(2)` and `recv(2)` have a return value: "Send and recv return 1 on success, -1 if interrupted." [^8]
 
 [chans.go](./go/chans.go)
 
@@ -2292,3 +2292,4 @@ Hello ☺
 [^5]: http://doc.cat-v.org/plan_9/2nd_edition/papers/alef/ug
 [^6]: https://gcc.gnu.org/onlinedocs/gcc-4.6.0/gcc/Unnamed-Fields.html#Unnamed-Fields
 [^7]: http://usingcsp.com/cspbook.pdf
+[^8]: http://man.cat-v.org/9front/2/thread
