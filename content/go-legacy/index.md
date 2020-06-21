@@ -12,19 +12,27 @@ tags = [
 
 This post intends to showcase programming patterns, or _stuff_, which is common between Newsqueak, Alef, Plan9 C, Limbo, and Go.
 
-All of these code snippets should be complete as shown and compilable/runnable in the state presented.
+All of these code snippets should be complete as shown and compilable/runnable in the state presented. The Alef examples might have subtle typos, but this is due to the fact I had to manually re-type them out from VirtualBox since I didn't have copy/paste available to the guest.
+
+Commentary has been inserted before examples where I believe it will be helpful.
+
+If I missed a feature or misreported a fact, feel free to open an issue/PR against [the blog on GitHub](http://github.com/henesy/blog).
+
+## Motivation
 
 Articles or posts talking about Go's predecessors have a habit of referring to the languages listed above, but can fail to provide concrete resources for seeing how these languages work. This post aims to provide a reference for such languages.
 
-Note that this reference is not intended to be exhaustive.
+I find being able to play with languages and see complete programs showing how the language fits together as a whole rather than just small snippets extremely valuable for learning.
 
-If I missed a feature or misreported a fact, feel free to open an issue/PR against [the blog on GitHub](http://github.com/henesy/blog).
+In particular with older languages, it can be difficult to find ways to practically experiment with the language and get a feel for the ergonomics of the error reporting, building of complex programs, etc. without having access to the compiler/interpreter/environment itself. As such, paths to being able to write in these languages have been provided for each language presented.
+
+Note that this reference is not intended to be exhaustive.
 
 ## Building and running examples
 
 ### Newsqueak
 
-The unix port of squint is probably the most straightforward method, found [here](https://github.com/rwos/newsqueak).
+The unix port of squint is found at <https://github.com/rwos/newsqueak>.
 
 The papers describing Newsqueak:
 
@@ -41,7 +49,7 @@ $
 
 ### Alef
 
-Your best bet at trying Alef is installing a Plan9 2nd edition (2e) virtual machine. A text guide for this process is in [a prior blog post](https://seh.dev/plan9-2e/) and [a video guide to installation](https://www.youtube.com/watch?v=W00TnQ91nj8).
+Your best bet at trying Alef is installing a Plan9 2nd edition (2e) virtual machine. A text guide for this process is in [a prior blog post](https://seh.dev/plan9-2e/) and [a complementary video guide for installation](https://www.youtube.com/watch?v=W00TnQ91nj8).
 
 Papers on Alef: <http://doc.cat-v.org/plan_9/2nd_edition/papers/alef/>
 
@@ -65,12 +73,14 @@ term%
 
 The most actively maintained Plan9 fork [is 9front](http://9front.org/).
 
+A more Bell Labs-like experience may be found [in 9legacy](http://9legacy.org/). Instructions and workflow should be similar.
+
 Papers describing the Plan9 C dialect:
 
 - <http://doc.cat-v.org/plan_9/programming/c_programming_in_plan_9>
 - <http://doc.cat-v.org/plan_9/4th_edition/papers/compiler>
 
-The Plan9 C dialect was partially described [in a previous blog post](https://seh.dev/porting/).
+The Plan9 C dialect was partially described with a narrative [in a previous blog post](https://seh.dev/porting/).
 
 From a 386 9front system:
 
@@ -121,7 +131,7 @@ From a prompt inside the Inferno virtual machine (or native):
 
 Go can be acquired from <https://golang.org>.
 
-The specification for Go: <https://golang.org/ref/spec>.
+The specification for Go: <https://golang.org/ref/spec>
 
 To run a single file program:
 
@@ -182,6 +192,8 @@ abc
 
 ### Plan9 C
 
+Related reading: [tokenize(2)](http://man.cat-v.org/9front/2/getfields)
+
 [tok.c](./plan9c/tok.c)
 
 ```c
@@ -220,6 +232,8 @@ test 1 2 3
 ```
 
 ### Limbo
+
+Related reading: [sys-tokenize(2)](http://man.cat-v.org/inferno/2/sys-tokenize)
 
 [tok.b](./limbo/tok.b)
 
@@ -368,6 +382,8 @@ main(void)
 
 ### Plan9 C
 
+Related reading: [thread(2)](http://man.cat-v.org/9front/2/thread)
+
 [co.c](./plan9c/co.c)
 
 ```c
@@ -465,7 +481,737 @@ func main() {
 14
 ```
 
+## Sending and receiving on channels
+
+Channels are a core part of the Communicating Sequential Processes (CSP) [^7] model for concurrent synchronization and communication.
+
+Go and its predecessors support standard library/primitive-level tooling for working with channels.
+
+### Newsqueak
+
+[chans.nq](./newsqueak/chans.nq)
+
+```smalltalk
+max := 10;
+
+# Prints out numbers as they're received
+printer := prog(c: chan of int)
+{
+	i : int;
+	for(i = 0; i < max; i++){
+		n := <- c;
+		print(n, " ");
+	}
+	print("\n");
+};
+
+# Pushes values into the channel
+pusher := prog(c: chan of int)
+{
+	i : int;
+	for(i = 0; i < max; i++){
+		c <-= i * i;
+	}
+};
+
+# Begin main logic
+printChan := mk(chan of int);
+
+begin printer(printChan);
+begin pusher(printChan);
+```
+
+#### Output
+
+```text
+0 1 4 9 16 25 36 49 64 81
+```
+
+### Alef
+
+Note the `?` and `[n]` syntax for channels as defined in the _"Alef User's Guide"_. [^5]
+
+[chans.l](./alef/chans.l)
+
+```c
+#include <alef.h>
+
+int max = 10;
+
+void
+pusher(chan(int) printchan)
+{
+	int i;
+	for(i = 0; i < max; i++)
+		printchan <-= i * i;
+}
+
+void
+printer(chan(int) printchan)
+{
+	int n, i;
+
+	for(i = 0; i < max; i++){
+		n = <-printchan;
+		print("%d\n", n);
+	}
+}
+
+void
+main(void)
+{
+	chan(int) printchan;
+	chan(int)[2] bufchan;
+	alloc printchan, bufchan;
+
+	par {
+		pusher(printchan);
+		printer(printchan);
+	}
+
+	while(bufchan?){
+		i = ++i * ++i;
+		bufchan <- = i;
+		print("sent %d\n", i);
+	}
+
+	while(?bufchan)
+		print("received %d\n", <-bufchan);
+}
+```
+
+#### Output
+
+```text
+0
+1
+4
+9
+16
+25
+36
+49
+64
+81
+sent 2
+sent 12
+received 2
+received 12
+```
+
+### Plan9 C
+
+Related reading: [thread(2)](http://man.cat-v.org/9front/2/thread)
+
+[chans.c](./plan9c/chans.c)
+
+```c
+#include <u.h>
+#include <libc.h>
+#include <thread.h>
+
+const max = 10;
+
+void printer(void *v)
+{
+	Channel *printchan = (Channel*) v;
+	int i, n;
+
+	for(i = 0; i < max; i++){
+		recv(printchan, &n);
+		print("received → %d\n", n);
+	}
+
+	threadexits(nil);
+}
+
+void pusher(void *v)
+{
+	Channel *printchan = (Channel*) v;
+	int i, *n;
+	n = calloc(1, sizeof (int));
+
+	for(i = 0; i < max; i++){
+		*n = i * i;
+		send(printchan, n);
+	}
+
+	threadexits(nil);
+}
+
+void
+threadmain(int, char*[]) {
+	int bufsize = 2;
+	Channel *printchan = chancreate(sizeof (int), 0);
+
+	proccreate(printer,	printchan,	4096);
+	proccreate(pusher,	printchan,	4096);
+
+	sleep(100);
+
+	threadexitsall(nil);
+}
+```
+
+#### Output
+
+```text
+received → 0
+received → 1
+received → 4
+received → 9
+received → 16
+received → 25
+received → 36
+received → 49
+received → 64
+received → 81
+```
+
+### Limbo
+
+[chans.b](./limbo/chans.b)
+
+```c
+implement Channels;
+
+include "sys.m";
+	sys: Sys;
+
+include "draw.m";
+
+Channels: module {
+	init: fn(nil: ref Draw->Context, nil: list of string);
+};
+
+max : con 10;
+
+printer(c: chan of int) {
+	i : int;
+	for(i = 0; i < max; i++){
+		n := <- c;
+		sys->print("%d ", n);
+	}
+	sys->print("\n");
+}
+
+pusher(c: chan of int) {
+	i : int;
+	for(i = 0; i < max; i++){
+		c <-= i * i;
+	}
+}
+
+init(nil: ref Draw->Context, nil: list of string) {
+	sys = load Sys Sys->PATH;
+
+	printChan := chan of int;
+
+	spawn printer(printChan);
+	spawn pusher(printChan);
+
+	sys->sleep(1);
+
+	exit;
+}
+```
+
+#### Output
+
+```text
+0 1 4 9 16 25 36 49 64 81
+```
+
+### Go
+
+Note that Go is the only language to support the optional `ok` value when reading out of a channel.
+
+[chans.go](./go/chans.go)
+
+```go
+package main
+
+import (
+	"fmt"
+)
+
+const max = 10
+
+func printer(c chan int, done chan bool) {
+	for {
+		n, ok := <- c
+		if !ok {
+			break
+		}
+
+		fmt.Print(n, " ")
+	}
+
+	fmt.Println()
+
+	done <- true
+}
+
+func pusher(c chan int) {
+	for i := 0; i < max; i++ {
+		c <- i * i
+	}
+
+	close(c)
+}
+
+func main() {
+	c := make(chan int, 2)
+	done := make(chan bool)
+
+	go printer(c, done)
+	go pusher(c)
+
+	<- done
+}
+
+```
+
+#### Output
+
+```text
+0 1 4 9 16 25 36 49 64 81
+```
+
+## Selecting on multiple channels
+
+Continuing with the CSP channel communication model, Go and its predecessors support primitives for alternating - or selecting - on multiple channels, typically in switch/case-like statement specifying a case of ready to send/receive.
+
+### Newsqueak
+
+[select.nq](./newsqueak/select.nq)
+
+```smalltalk
+max := 2;
+
+# Selects on two channels for both being able to receive and send
+selector := prog(prodChan : chan of int, recChan : chan of int, n : int){
+	i : int;
+
+	for(;;)
+		select{
+		case i =<- prodChan:
+			print("case recv	← ", i, "\n");
+
+		case recChan <-= n:
+			print("case send	→ ", n, "\n");
+		}
+};
+
+# Pushes `max` values into `prodChan`
+producer := prog(n : int, prodChan : chan of int){
+	i : int;
+
+	for(i = 0; i < max; i++){
+		print("pushed		→ ", n, "\n");
+		prodChan <-= n;
+	}
+};
+
+# Reads `max` values out of `recChan`
+receiver := prog(recChan : chan of int){
+	i : int;
+
+	# Stop receiving, manually
+	for(i = 0; i < max; i++)
+		print("received	→ ", <- recChan, "\n");
+};
+
+# Begin main logic
+prodChan := mk(chan of int);
+
+recChan := mk(chan of int);
+
+begin producer(123, prodChan);
+begin receiver(recChan);
+begin selector(prodChan, recChan, 456);
+```
+
+#### Output
+
+```text
+pushed		→ 123
+pushed		→ 123
+case recv	← 123
+case send	→ 456
+received	→ 456
+case send	→ 456
+received	→ 456
+case recv	← 123
+```
+
+### Alef
+
+[select.l](./alef/select.l)
+
+```c
+#include <alef.h>
+
+int max = 2;
+
+void
+selector(chan(int) prodchan, chan(int) recchan, int n)
+{
+	int i;
+
+	for(;;)
+		alt{
+		case i =<- prodchan:
+			print("case recv	← %d\n", i);
+
+		case recchan <-= n:
+			print("case send	→ %d\n", n);
+		}
+}
+
+void
+producer(int n, chan(int) prodchan)
+{
+	int i;
+	for(i = 0; i < max; i++){
+		print("pushed	→ %d\n", n);
+		prodchan <-= n;
+	}
+}
+
+void
+receiver(chan(int) recchan)
+{
+	int i;
+	for(i = 0; i < max; i++){
+		int n;
+		n = <- recchan;
+		print("received	→ %d\n", n);
+	}
+}
+
+void
+main(void)
+{
+	chan(int) prodchan;
+	chan(int) recchan;
+	alloc prodchan;
+	alloc recchan;
+
+	proc producer(123, prodchan);
+	proc receiver(recchan);
+	proc selector(prodchan, recchan, 456);
+
+	sleep(15);
+}
+```
+
+#### Output
+
+```text
+pushed		→ 123
+case send	→ 456
+case recv	← 123
+received	→ 456
+received	→ 456
+pushed		→ 123
+case send	→ 456
+case recv	← 123
+```
+
+### Plan9 C
+
+Related reading: [thread(2)](http://man.cat-v.org/9front/2/thread)
+
+[select.c](./plan9c/select.c)
+
+```c
+#include <u.h>
+#include <libc.h>
+#include <thread.h>
+
+const int max = 2;
+
+typedef struct Tuple Tuple;
+struct Tuple {
+	Channel *a;
+	Channel *b;
+};
+
+void
+selector(void *v)
+{
+	Tuple *t = (Tuple*)v;
+	Channel *prodchan = t->a;
+	Channel *recchan = t->b;
+
+	// Set up vars for alt
+	int pn;
+	int *rn = malloc(1 * sizeof (int));
+	*rn = 456;
+
+	// Set up alt
+	Alt alts[] = {
+		{prodchan,	&pn,	CHANRCV},
+		{recchan,	rn,		CHANSND},
+		{nil,		nil,	CHANEND},
+	};
+
+	for(;;)
+		switch(alt(alts)){
+		case 0:
+			// prodchan open for reading
+			recv(prodchan, &pn);
+			print("case recv	← %d\n", pn);
+			break;
+
+		case 1:
+			// recchan open for writing
+			send(recchan, rn);
+			print("case send	→ %d\n", *rn);
+			break;
+
+		default:
+			break;
+		}
+}
+
+void
+producer(void *v)
+{
+	Channel *prodchan = (Channel*)v;
+	int *n = malloc(1 * sizeof (int));
+	*n = 123;
+
+	int i;
+	for(i = 0; i < max; i++){
+		print("pushed		→ %d\n", *n);
+		send(prodchan, n);
+	}
+
+	chanclose(prodchan);
+}
+
+void
+receiver(void *v)
+{
+	Channel *recchan = (Channel*)v;
+
+	int i;
+	int n;
+	for(i = 0; i < max; i++){
+		recv(recchan, &n);
+		print("received	→ %d\n", n);
+	}
+
+	chanclose(recchan);
+}
+
+void
+threadmain(int, char*[])
+{
+	// Set up channels
+	Channel *prodchan	= chancreate(sizeof (int), max);
+	Channel *recchan	= chancreate(sizeof (int), max);
+
+	Tuple *chans = malloc(1 * sizeof (Tuple));
+	chans->a = prodchan;
+	chans->b = recchan;
+
+	// Start processes
+	proccreate(producer, prodchan,	4096);
+	proccreate(receiver, recchan,	4096);
+	proccreate(selector, chans,		4096);
+
+	sleep(1000);
+
+	threadexitsall(nil);
+}
+```
+
+#### Output
+
+```text
+pushed		→ 123
+received	→ 456
+case send	→ 456
+pushed		→ 123
+received	→ 456
+case send	→ 456
+case recv	← 123
+case send	→ 456
+case recv	← 123
+```
+
+### Limbo
+
+[select.b](./limbo/select.b)
+
+```c
+implement Select;
+
+include "sys.m";
+	sys: Sys;
+	print: import sys;
+
+include "draw.m";
+
+Select: module {
+	init: fn(nil: ref Draw->Context, nil: list of string);
+};
+
+max : con 2;
+
+selector(prodChan: chan of int, recChan: chan of int, n: int) {
+	for(;;)
+		alt {
+		i := <- prodChan =>
+			print("case recv	← %d\n", i);
+
+		recChan <-= n =>
+			print("case send	→ %d\n", n);
+
+		* =>
+			break;
+		}
+}
+
+producer(n: int, prodChan: chan of int) {
+	for(i := 0; i < max; i++){
+		print("pushed		→ %d\n", n);
+		prodChan <-= n;
+	}
+}
+
+receiver(recChan: chan of int) {
+	for(i := 0; i < max; i++)
+		print("received	→ %d\n", <- recChan);
+}
+
+init(nil: ref Draw->Context, nil: list of string) {
+	sys = load Sys Sys->PATH;
+
+	prodChan	:= chan of int;
+	recChan	:= chan of int;
+
+	spawn producer(123, prodChan);
+	spawn receiver(recChan);
+	spawn selector(prodChan, recChan, 456);
+
+	sys->sleep(1000);
+
+	exit;
+}
+
+```
+
+#### Output
+
+```text
+pushed		→ 123
+case send	→ 456
+received	→ 456
+case recv	← 123
+pushed		→ 123
+case recv	← 123
+case send	→ 456
+received	→ 456
+```
+
+### Go
+
+[select.go](./go/select.go)
+
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func printer(intChan chan int, strChan chan string, stopChan chan bool) {
+	strClosed := false
+
+	loop:
+	for {
+		select {
+		case n := <- intChan:
+			fmt.Println(n)
+
+		case s, ok := <- strChan:
+			if !ok {
+				strClosed = true
+			} else {
+				fmt.Println(s)
+			}
+
+		case stopChan <- true:
+			if strClosed {
+				break loop
+			}
+		}
+	}
+
+	fmt.Println("done.")
+}
+
+func makeInts(intChan chan int, stopChan chan bool) {
+	for i := 0; i < 3; i++ {
+		intChan <- i*i
+	}
+
+	<- stopChan
+}
+
+func makeStrings(strChan chan string) {
+	strings := []string{"a", "b", "☺"}
+
+	for _, s := range strings {
+		strChan <- s
+	}
+
+	close(strChan)
+}
+
+func main() {
+	stopChan := make(chan bool, 1)
+	stopChan <- true
+
+	intChan := make(chan int)
+
+	size := 3
+	strChan := make(chan string, size)
+
+	go printer(intChan, strChan, stopChan)
+	go makeInts(intChan, stopChan)
+	go makeStrings(strChan)
+
+	time.Sleep(10 * time.Millisecond)
+}
+```
+
+#### Output
+
+```text
+0
+a
+1
+b
+☺
+4
+done.
+```
+
 ## Unnamed struct members and promotion
+
+Go, including some of its predecessors, includes the ability to have unnamed sub-structures which can be contextually promoted.
+
+The details of how this promotion works, if present, is found under each language's respective specification/documentation.
+
+Pay attention to how and where different elements of different structures are called in these examples.
+
+Note that gcc supports this feature in a similar way under the `-fplan9-extensions` flag. [^6]
 
 ### Newsqueak
 
@@ -762,719 +1508,11 @@ func main() {
 {{-3 1} 12}
 ```
 
-## Sending and receiving on channels
-
-### Newsqueak
-
-[chans.nq](./newsqueak/chans.nq)
-
-```smalltalk
-max := 10;
-
-# Prints out numbers as they're received
-printer := prog(c: chan of int)
-{
-	i : int;
-	for(i = 0; i < max; i++){
-		n := <- c;
-		print(n, " ");
-	}
-	print("\n");
-};
-
-# Pushes values into the channel
-pusher := prog(c: chan of int)
-{
-	i : int;
-	for(i = 0; i < max; i++){
-		c <-= i * i;
-	}
-};
-
-# Begin main logic
-printChan := mk(chan of int);
-
-begin printer(printChan);
-begin pusher(printChan);
-```
-
-#### Output
-
-```text
-0 1 4 9 16 25 36 49 64 81
-```
-
-### Alef
-
-Note the `?` and `[n]` syntax for channels as defined in the _"Alef User's Guide"_. [^5]
-
-[chans.l](./alef/chans.l)
-
-```c
-#include <alef.h>
-
-int max = 10;
-
-void
-pusher(chan(int) printchan)
-{
-	int i;
-	for(i = 0; i < max; i++)
-		printchan <-= i * i;
-}
-
-void
-printer(chan(int) printchan)
-{
-	int n, i;
-
-	for(i = 0; i < max; i++){
-		n = <-printchan;
-		print("%d\n", n);
-	}
-}
-
-void
-main(void)
-{
-	chan(int) printchan;
-	chan(int)[2] bufchan;
-	alloc printchan, bufchan;
-
-	par {
-		pusher(printchan);
-		printer(printchan);
-	}
-
-	while(bufchan?){
-		i = ++i * ++i;
-		bufchan <- = i;
-		print("sent %d\n", i);
-	}
-
-	while(?bufchan)
-		print("received %d\n", <-bufchan);
-}
-```
-
-#### Output
-
-```text
-0
-1
-4
-9
-16
-25
-36
-49
-64
-81
-sent 2
-sent 12
-received 2
-received 12
-```
-
-### Plan9 C
-
-[chans.c](./plan9c/chans.c)
-
-```c
-#include <u.h>
-#include <libc.h>
-#include <thread.h>
-
-const max = 10;
-
-void printer(void *v)
-{
-	Channel *printchan = (Channel*) v;
-	int i, n;
-
-	for(i = 0; i < max; i++){
-		recv(printchan, &n);
-		print("received → %d\n", n);
-	}
-
-	threadexits(nil);
-}
-
-void pusher(void *v)
-{
-	Channel *printchan = (Channel*) v;
-	int i, *n;
-	n = calloc(1, sizeof (int));
-
-	for(i = 0; i < max; i++){
-		*n = i * i;
-		send(printchan, n);
-	}
-
-	threadexits(nil);
-}
-
-void
-threadmain(int, char*[]) {
-	int bufsize = 2;
-	Channel *printchan = chancreate(sizeof (int), 0);
-
-	proccreate(printer,	printchan,	4096);
-	proccreate(pusher,	printchan,	4096);
-
-	sleep(100);
-
-	threadexitsall(nil);
-}
-```
-
-#### Output
-
-```text
-received → 0
-received → 1
-received → 4
-received → 9
-received → 16
-received → 25
-received → 36
-received → 49
-received → 64
-received → 81
-```
-
-### Limbo
-
-[chans.b](./limbo/chans.b)
-
-```c
-implement Channels;
-
-include "sys.m";
-	sys: Sys;
-
-include "draw.m";
-
-Channels: module {
-	init: fn(nil: ref Draw->Context, nil: list of string);
-};
-
-max : con 10;
-
-printer(c: chan of int) {
-	i : int;
-	for(i = 0; i < max; i++){
-		n := <- c;
-		sys->print("%d ", n);
-	}
-	sys->print("\n");
-}
-
-pusher(c: chan of int) {
-	i : int;
-	for(i = 0; i < max; i++){
-		c <-= i * i;
-	}
-}
-
-init(nil: ref Draw->Context, nil: list of string) {
-	sys = load Sys Sys->PATH;
-
-	printChan := chan of int;
-
-	spawn printer(printChan);
-	spawn pusher(printChan);
-
-	sys->sleep(1);
-
-	exit;
-}
-```
-
-#### Output
-
-```text
-0 1 4 9 16 25 36 49 64 81
-```
-
-### Go
-
-[chans.go](./go/chans.go)
-
-```go
-package main
-
-import (
-	"fmt"
-)
-
-const max = 10
-
-func printer(c chan int, done chan bool) {
-	for {
-		n, ok := <- c
-		if !ok {
-			break
-		}
-
-		fmt.Print(n, " ")
-	}
-
-	fmt.Println()
-
-	done <- true
-}
-
-func pusher(c chan int) {
-	for i := 0; i < max; i++ {
-		c <- i * i
-	}
-
-	close(c)
-}
-
-func main() {
-	c := make(chan int, 2)
-	done := make(chan bool)
-
-	go printer(c, done)
-	go pusher(c)
-
-	<- done
-}
-
-```
-
-#### Output
-
-```text
-0 1 4 9 16 25 36 49 64 81
-```
-
-## Selecting on multiple channels
-
-### Newsqueak
-
-[select.nq](./newsqueak/select.nq)
-
-```smalltalk
-max := 2;
-
-# Selects on two channels for both being able to receive and send
-selector := prog(prodChan : chan of int, recChan : chan of int, n : int){
-	i : int;
-
-	for(;;)
-		select{
-		case i =<- prodChan:
-			print("case recv	← ", i, "\n");
-
-		case recChan <-= n:
-			print("case send	→ ", n, "\n");
-		}
-};
-
-# Pushes `max` values into `prodChan`
-producer := prog(n : int, prodChan : chan of int){
-	i : int;
-
-	for(i = 0; i < max; i++){
-		print("pushed		→ ", n, "\n");
-		prodChan <-= n;
-	}
-};
-
-# Reads `max` values out of `recChan`
-receiver := prog(recChan : chan of int){
-	i : int;
-
-	# Stop receiving, manually
-	for(i = 0; i < max; i++)
-		print("received	→ ", <- recChan, "\n");
-};
-
-# Begin main logic
-prodChan := mk(chan of int);
-
-recChan := mk(chan of int);
-
-begin producer(123, prodChan);
-begin receiver(recChan);
-begin selector(prodChan, recChan, 456);
-```
-
-#### Output
-
-```text
-pushed		→ 123
-pushed		→ 123
-case recv	← 123
-case send	→ 456
-received	→ 456
-case send	→ 456
-received	→ 456
-case recv	← 123
-```
-
-### Alef
-
-[select.l](touch ./alef/select.l)
-
-```c
-#include <alef.h>
-
-int max = 2;
-
-void
-selector(chan(int) prodchan, chan(int) recchan, int n)
-{
-	int i;
-
-	for(;;)
-		alt{
-		case i =<- prodchan:
-			print("case recv	← %d\n", i);
-
-		case recchan <-= n:
-			print("case send	→ %d\n", n);
-		}
-}
-
-void
-producer(int n, chan(int) prodchan)
-{
-	int i;
-	for(i = 0; i < max; i++){
-		print("pushed	→ %d\n", n);
-		prodchan <-= n;
-	}
-}
-
-void
-receiver(chan(int) recchan)
-{
-	int i;
-	for(i = 0; i < max; i++){
-		int n;
-		n = <- recchan;
-		print("received	→ %d\n", n);
-	}
-}
-
-void
-main(void)
-{
-	chan(int) prodchan;
-	chan(int) recchan;
-	alloc prodchan;
-	alloc recchan;
-
-	proc producer(123, prodchan);
-	proc receiver(recchan);
-	proc selector(prodchan, recchan, 456);
-
-	sleep(15);
-}
-```
-
-#### Output
-
-```text
-pushed		→ 123
-case send	→ 456
-case recv	← 123
-received	→ 456
-received	→ 456
-pushed		→ 123
-case send	→ 456
-case recv	← 123
-```
-
-### Plan9 C
-
-[select.c](./plan9c/select.c)
-
-```c
-#include <u.h>
-#include <libc.h>
-#include <thread.h>
-
-const int max = 2;
-
-typedef struct Tuple Tuple;
-struct Tuple {
-	Channel *a;
-	Channel *b;
-};
-
-void
-selector(void *v)
-{
-	Tuple *t = (Tuple*)v;
-	Channel *prodchan = t->a;
-	Channel *recchan = t->b;
-
-	// Set up vars for alt
-	int pn;
-	int *rn = malloc(1 * sizeof (int));
-	*rn = 456;
-
-	// Set up alt
-	Alt alts[] = {
-		{prodchan,	&pn,	CHANRCV},
-		{recchan,	rn,		CHANSND},
-		{nil,		nil,	CHANEND},
-	};
-
-	for(;;)
-		switch(alt(alts)){
-		case 0:
-			// prodchan open for reading
-			recv(prodchan, &pn);
-			print("case recv	← %d\n", pn);
-			break;
-
-		case 1:
-			// recchan open for writing
-			send(recchan, rn);
-			print("case send	→ %d\n", *rn);
-			break;
-
-		default:
-			break;
-		}
-}
-
-void
-producer(void *v)
-{
-	Channel *prodchan = (Channel*)v;
-	int *n = malloc(1 * sizeof (int));
-	*n = 123;
-
-	int i;
-	for(i = 0; i < max; i++){
-		print("pushed		→ %d\n", *n);
-		send(prodchan, n);
-	}
-
-	chanclose(prodchan);
-}
-
-void
-receiver(void *v)
-{
-	Channel *recchan = (Channel*)v;
-
-	int i;
-	int n;
-	for(i = 0; i < max; i++){
-		recv(recchan, &n);
-		print("received	→ %d\n", n);
-	}
-
-	chanclose(recchan);
-}
-
-void
-threadmain(int, char*[])
-{
-	// Set up channels
-	Channel *prodchan	= chancreate(sizeof (int), max);
-	Channel *recchan	= chancreate(sizeof (int), max);
-
-	Tuple *chans = malloc(1 * sizeof (Tuple));
-	chans->a = prodchan;
-	chans->b = recchan;
-
-	// Start processes
-	proccreate(producer, prodchan,	4096);
-	proccreate(receiver, recchan,	4096);
-	proccreate(selector, chans,		4096);
-
-	sleep(1000);
-
-	threadexitsall(nil);
-}
-```
-
-#### Output
-
-```text
-pushed		→ 123
-received	→ 456
-case send	→ 456
-pushed		→ 123
-received	→ 456
-case send	→ 456
-case recv	← 123
-case send	→ 456
-case recv	← 123
-```
-
-### Limbo
-
-[select.b](./limbo/select.b)
-
-```c
-implement Select;
-
-include "sys.m";
-	sys: Sys;
-	print: import sys;
-
-include "draw.m";
-
-Select: module {
-	init: fn(nil: ref Draw->Context, nil: list of string);
-};
-
-max : con 2;
-
-selector(prodChan: chan of int, recChan: chan of int, n: int) {
-	for(;;)
-		alt {
-		i := <- prodChan =>
-			print("case recv	← %d\n", i);
-
-		recChan <-= n =>
-			print("case send	→ %d\n", n);
-
-		* =>
-			break;
-		}
-}
-
-producer(n: int, prodChan: chan of int) {
-	for(i := 0; i < max; i++){
-		print("pushed		→ %d\n", n);
-		prodChan <-= n;
-	}
-}
-
-receiver(recChan: chan of int) {
-	for(i := 0; i < max; i++)
-		print("received	→ %d\n", <- recChan);
-}
-
-init(nil: ref Draw->Context, nil: list of string) {
-	sys = load Sys Sys->PATH;
-
-	prodChan	:= chan of int;
-	recChan	:= chan of int;
-
-	spawn producer(123, prodChan);
-	spawn receiver(recChan);
-	spawn selector(prodChan, recChan, 456);
-
-	sys->sleep(1000);
-
-	exit;
-}
-
-```
-
-#### Output
-
-```text
-pushed		→ 123
-case send	→ 456
-received	→ 456
-case recv	← 123
-pushed		→ 123
-case recv	← 123
-case send	→ 456
-received	→ 456
-```
-
-### Go
-
-[select.go](./go/select.go)
-
-```go
-package main
-
-import (
-	"fmt"
-	"time"
-)
-
-func printer(intChan chan int, strChan chan string, stopChan chan bool) {
-	strClosed := false
-
-	loop:
-	for {
-		select {
-		case n := <- intChan:
-			fmt.Println(n)
-
-		case s, ok := <- strChan:
-			if !ok {
-				strClosed = true
-			} else {
-				fmt.Println(s)
-			}
-
-		case stopChan <- true:
-			if strClosed {
-				break loop
-			}
-		}
-	}
-
-	fmt.Println("done.")
-}
-
-func makeInts(intChan chan int, stopChan chan bool) {
-	for i := 0; i < 3; i++ {
-		intChan <- i*i
-	}
-
-	<- stopChan
-}
-
-func makeStrings(strChan chan string) {
-	strings := []string{"a", "b", "☺"}
-
-	for _, s := range strings {
-		strChan <- s
-	}
-
-	close(strChan)
-}
-
-func main() {
-	stopChan := make(chan bool, 1)
-	stopChan <- true
-
-	intChan := make(chan int)
-
-	size := 3
-	strChan := make(chan string, size)
-
-	go printer(intChan, strChan, stopChan)
-	go makeInts(intChan, stopChan)
-	go makeStrings(strChan)
-
-	time.Sleep(10 * time.Millisecond)
-}
-```
-
-#### Output
-
-```text
-0
-a
-1
-b
-☺
-4
-done.
-```
-
 ## Multiple returns
 
 C in particular is an offender of not enabling returns without a named type (`struct`) or allocated memory in place to facilitate multiple values being returned to a caller.
+
+Go and some of the languages that influence it attempt to solve this issue while maintaining fairly C-like semantics.
 
 ### Newsqueak
 
@@ -1587,6 +1625,154 @@ func main() {
 
 ```text
 4 ☺ a b c
+```
+
+## Break and continue overloading
+
+Go and some of its predecessors support some form of overloading on top of break/continue to allow more precise flow control in nested iterative/branching logic.
+
+### Newsqueak
+
+Nope.
+
+### Alef
+
+This example is derived from an example in the _"Alef User's Guide"_. [^5]
+
+Note that there is no overloaded form of `continue`.
+
+[bctag.l](./alef/bctag.l)
+
+```c
+#include <alef.h>
+
+void
+main(void)
+{
+	chan(int)[1] dummy;
+	chan(int)[2] ch;
+	int a;
+
+	alloc ch, dummy;
+	dummy <-= 1;
+	ch <-= 3;
+	ch <-= 4;
+
+	while(?ch)
+		alt {
+		case a = <-ch;
+			print("got %d\n", a);
+			break 2;
+
+		case <- dummy;
+			print("dummy\n");
+			dummy <-= 1;
+			break;
+		}
+}
+```
+
+#### Output
+
+```text
+dummy
+dummy
+dummy
+dummy
+got 3
+```
+
+### Plan9 C
+
+Nope.
+
+### Limbo
+
+[bctag.b](./limbo/bctag.b)
+
+```c
+implement BreakContinueTag;
+
+include "sys.m";
+	sys: Sys;
+
+include "draw.m";
+
+BreakContinueTag: module {
+	init: fn(nil: ref Draw->Context, nil: list of string);
+};
+
+init(nil: ref Draw->Context, nil: list of string) {
+	sys = load Sys Sys->PATH;
+
+	i := 0;
+
+	loop:
+	for(;;){
+		i++;
+		case i {
+		11 =>
+			break loop;
+		* =>
+			if(i % 2 == 0)
+				continue loop;
+		}
+
+		sys->print("%d\n", i);
+	}
+
+	exit;
+}
+```
+
+#### Output
+
+```text
+1
+3
+5
+7
+9
+```
+
+### Go
+
+[bctag.go](./go/bctag.go)
+
+```go
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	i := 0
+
+	loop:
+	for {
+		i++
+		switch {
+		case i % 2 == 0:
+			continue loop
+
+		case i > 10:
+			break loop
+		}
+
+		fmt.Println(i)
+	}
+}
+```
+
+#### Output
+
+```text
+1
+3
+5
+7
+9
 ```
 
 ## Lists / iteration
@@ -1742,7 +1928,7 @@ Capacity = 10
 
 ## Modules / packages / separable compilation
 
-Although the idea of separating source across files is fairly universal in modern programming languages, this section demonstrates the semantics shared between these languages.
+The idea of separating source across files is fairly universal in modern programming languages. The semantics of this process is demonstrated below for Go and some of its predecessors.
 
 ### Newsqueak
 
@@ -1783,9 +1969,11 @@ Hello
 
 ### Alef
 
-Alef does not differ significantly from C and this example is omitted.
+Alef does not differ significantly from Plan9 C and this example is omitted.
 
 Alef uses headers on its own, but does not allow the inclusion of C header files. [^5]
+
+Related reading: [alef(1)](http://man.cat-v.org/plan_9_2nd_ed/1/alef)
 
 ### Plan9 C
 
@@ -2095,152 +2283,6 @@ func Smile() {
 Hello ☺
 ```
 
-## Break and continue to tag
-
-### Newsqueak
-
-Nope.
-
-### Alef
-
-This example is derived from an example in the _"Alef User's Guide"_. [^5]
-
-Note that there is no overloaded form of `continue`.
-
-[bctag.l](./alef/bctag.l)
-
-```c
-#include <alef.h>
-
-void
-main(void)
-{
-	chan(int)[1] dummy;
-	chan(int)[2] ch;
-	int a;
-
-	alloc ch, dummy;
-	dummy <-= 1;
-	ch <-= 3;
-	ch <-= 4;
-
-	while(?ch)
-		alt {
-		case a = <-ch;
-			print("got %d\n", a);
-			break 2;
-
-		case <- dummy;
-			print("dummy\n");
-			dummy <-= 1;
-			break;
-		}
-}
-```
-
-#### Output
-
-```text
-dummy
-dummy
-dummy
-dummy
-got 3
-```
-
-### Plan9 C
-
-Nope.
-
-### Limbo
-
-[bctag.b](./limbo/bctag.b)
-
-```c
-implement BreakContinueTag;
-
-include "sys.m";
-	sys: Sys;
-
-include "draw.m";
-
-BreakContinueTag: module {
-	init: fn(nil: ref Draw->Context, nil: list of string);
-};
-
-init(nil: ref Draw->Context, nil: list of string) {
-	sys = load Sys Sys->PATH;
-
-	i := 0;
-
-	loop:
-	for(;;){
-		i++;
-		case i {
-		11 =>
-			break loop;
-		* =>
-			if(i % 2 == 0)
-				continue loop;
-		}
-
-		sys->print("%d\n", i);
-	}
-
-	exit;
-}
-```
-
-#### Output
-
-```text
-1
-3
-5
-7
-9
-```
-
-### Go
-
-[bctag.go](./go/bctag.go)
-
-```go
-package main
-
-import (
-	"fmt"
-)
-
-func main() {
-	i := 0
-
-	loop:
-	for {
-		i++
-		switch {
-		case i % 2 == 0:
-			continue loop
-
-		case i > 10:
-			break loop
-		}
-
-		fmt.Println(i)
-	}
-}
-```
-
-#### Output
-
-```text
-1
-3
-5
-7
-9
-```
-
 ## References
 
 [^1]: https://github.com/henesy/awesome-inferno
@@ -2248,3 +2290,5 @@ func main() {
 [^3]: https://blog.golang.org/using-go-modules
 [^4]: http://doc.cat-v.org/plan_9/4th_edition/papers/compiler
 [^5]: http://doc.cat-v.org/plan_9/2nd_edition/papers/alef/ug
+[^6]: https://gcc.gnu.org/onlinedocs/gcc-4.6.0/gcc/Unnamed-Fields.html#Unnamed-Fields
+[^7]: http://usingcsp.com/cspbook.pdf
