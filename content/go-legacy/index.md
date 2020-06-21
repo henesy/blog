@@ -1,6 +1,6 @@
 +++
 title = "Go's History in Code"
-date = "2020-06-16"
+date = "2020-06-20"
 tags = [
 	"go",
 	"plan9",
