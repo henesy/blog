@@ -564,6 +564,40 @@ main(void)
 	Worker engineer;
 
 	p0 = (Point)(3, -1);
+
+	c.Point = p0;
+	p0 = c;
+
+	p1 = mirror(c);
+
+	if(equal(p0, c))
+		print("p0 = c\n");
+	else
+		print("p0 ≠ c\n");
+
+	print("c's point = (%d,%d)\n", c.x, c.y);
+
+	print("p1 = (%d,%d)\n", p1.x, p1.y);
+
+	l = (Line)(p0, p1);
+
+	s.Line = l;
+	s.type = 0;	/* a line */
+
+	if(s.type == 0)
+		print("Shape is line (%d,%d) → (%d,%d)\n, s.p1.x, s.p1.y, s.p2.x, s.p2.y);
+
+	sean = .Person.init();
+	engineer = .Worker.init(sean);
+
+	engineer.ageup(2);
+
+	print("engineer position \"%s\" is %d years old\n",
+			engineer.position, engineer.age);
+
+	ana = engineer;
+
+	print("ana age = %d\n", ana.age);
 }
 ```
 
@@ -1749,7 +1783,9 @@ Hello
 
 ### Alef
 
-show `#include` and headers, etc. like C
+Alef does not differ significantly from C and this example is omitted.
+
+Alef uses headers on its own, but does not allow the inclusion of C header files. [^5]
 
 ### Plan9 C
 
