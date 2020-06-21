@@ -63,7 +63,7 @@ From a prompt on a complete Plan9 2e installation:
 
 ```shell
 term% 8al foo.l
-term% 8l co.8
+term% 8l foo.8
 term% 8.out
 # output, if any
 term%
