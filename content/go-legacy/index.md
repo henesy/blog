@@ -473,7 +473,110 @@ Nope.
 
 ### Alef
 
-as per the user's guide
+[unnamed.l](./alef/unnamed.l)
+
+```c
+#include <alef.h>
+
+aggr Point {
+	int x;
+	int y;
+};
+
+aggr Line {
+	Point p1;
+	Point p2;
+};
+
+aggr Circle {
+	Point;
+	int radius;
+};
+
+aggr Shape {
+	int type;
+	union {
+		Circle;
+		Line;
+	};
+};
+
+adt Person {
+extern	int age;
+extern	void ageup(*Person, int);
+extern	Person init();
+};
+
+adt Worker {
+extern	Person;
+extern	byte *position;
+extern	Worker init(Person);
+};
+
+Worker
+Worker.init(Person p)
+{
+	Worker w;
+
+	w.position = "none";
+	w.Person = p;
+
+	return w;
+}
+
+void
+Person.ageup(Person *p, int n)
+{
+	p->age += n;
+}
+
+Person
+Person.init()
+{
+	Person p;
+
+	p.age = 1;
+
+	return p;
+}
+
+int equal(Point p1, Point p2)
+{
+	return p1.x == p2.x && p1.y == p2.y;
+}
+
+Point
+mirror(Point p)
+{
+	p.x *= -1;
+	p.y *= -1;
+	return p;
+}
+
+void
+main(void)
+{
+	Point p0, p1;
+	Circle c;
+	Shape s;
+	Line l;
+	Person sean, ana;
+	Worker engineer;
+
+	p0 = (Point)(3, -1);
+}
+```
+
+#### Output
+
+```text
+p0 = c
+c's point = (3,-1)
+p1 = (-3,1)
+Shape is line (3,-1) → (-3,1)
+engineer position "none" is 3 years old
+ana age = 3
+```
 
 ### Plan9 C
 
@@ -1964,9 +2067,50 @@ Nope.
 
 ### Alef
 
-as per user's guide, show `break n` for `n` levels of nested control
+This example is derived from an example in the _"Alef User's Guide"_. [^5]
 
-no continue
+Note that there is no overloaded form of `continue`.
+
+[bctag.l](./alef/bctag.l)
+
+```c
+#include <alef.h>
+
+void
+main(void)
+{
+	chan(int)[1] dummy;
+	chan(int)[2] ch;
+	int a;
+
+	alloc ch, dummy;
+	dummy <-= 1;
+	ch <-= 3;
+	ch <-= 4;
+
+	while(?ch)
+		alt {
+		case a = <-ch;
+			print("got %d\n", a);
+			break 2;
+
+		case <- dummy;
+			print("dummy\n");
+			dummy <-= 1;
+			break;
+		}
+}
+```
+
+#### Output
+
+```text
+dummy
+dummy
+dummy
+dummy
+got 3
+```
 
 ### Plan9 C
 
