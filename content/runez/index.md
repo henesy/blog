@@ -206,6 +206,50 @@ The fatal assumption made by runez is that there are no more than $$ (\oplus uin
 
 This implies that runez can only compress files consisting of 256 characters or less, which is not very useful. 
 
+The following function expresses the size of the final archive size ($$\sigma$$) in bytes:
+
+$$
+\sigma = \sum \forall r\{1 + 4 + n_r\}
+$$
+
+We can apply this formula on the mac.txt example from earlier to calculate the size of the final archive. 
+
+The file consists of one line of 39 runes repeated across 5 lines:
+
+```text
+Моето летачко возило е полно со јагули\n
+```
+
+The set of 19 unique runes:
+
+$$
+r \isin R\{nl, ␣, М, о, е, т, л, а, ч, к, в, з, и, п, с, ј, г, у, н\}
+$$
+
+$$
+R \implies bookkeeping_\sigma = (1 + 4) * 19 = 95\ bytes
+$$
+
+$$
+positions_\sigma = 5 * 39 = 195
+$$
+
+$$
+\sigma = bookkeeping_\sigma + positions_\sigma = 95 + 195 = 290
+$$
+
+$$
+\therefore 290\ bytes
+$$
+
+We can validate this manually:
+
+```shell
+$ wc -c mac.rz
+290 mac.rz
+$
+```
+
 ### Implementation
 
 #### Compression
@@ -397,7 +441,7 @@ There is an implied maximum compression ratio offered by runez2.
 The following function expresses the size of the final archive size ($$\sigma$$) in bytes:
 
 $$
-\sigma = 1 + \sum \forall r\{n_r + 4 , r \neq \empty\}
+\sigma = 4 + \sum \forall r\{n_r + 4 , r \neq \empty\}
 $$
 
 Note that the function for finding the maximum potential size in bytes of the plaintext utf-8 is:
@@ -408,11 +452,7 @@ $$
 
 Note that in practice, due to how utf-8 text encoding works, the size in bytes of the plaintext is most likely much smaller than this number. 
 
-We can apply these former formula on the mac.txt example from earlier to calculate the size of the final archive:
-
-$$
-\sigma = 4 + \sum \forall r\{n_r + 4 , r \neq \empty\}
-$$
+We can apply the former formula on the mac.txt example from earlier to calculate the size of the final archive. 
 
 The file consists of one line of 39 runes repeated many times:
 
@@ -450,7 +490,9 @@ $ wc -c mac.rz2
 $
 ```
 
-The handicap assumptions make runez2 insufficient for languages such as Mandarin in most applications which possess a number of distinct runes greater than 256, but is sufficient in all applications for alphabets such as Arabic, Cyrillic. 
+**Disclaimer:** I am not a mathematician, these formulae are an approximation of what I remember from university ☺. 
+
+The assumptions make runez2 insufficient for languages such as Mandarin in applications which possess a number of distinct runes greater than 256, which is most applications, but is sufficient in all applications for alphabets such as Arabic, Cyrillic, etc. 
 
 ### Implementation
 
