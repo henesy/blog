@@ -25,13 +25,13 @@ markup = "mmark"
 
 # The Runez Compression Algorithms
 
-In January of 2020 I set about writing a pair of lossless compression algorithms inspired by a series of conversations over coffee with a good friend. 
+In January of 2020 I set about writing a pair of naïve, lossless, compression algorithms inspired by a series of conversations over coffee with a good friend. 
 
-These algorithms are fairly naive, but simple and to that end I will attempt to convey the implementation. 
+These algorithms are very naïve, but simple structurally and to that end I will attempt to convey the implementation. 
 
 There are two algorithms, [runez](https://github.com/henesy/runez) and [runez2](https://github.com/henesy/runez2). 
 
-The runez2 algorithm is a strictly superior successor to runez with the primary improvement being that there is no unique character limit, which will be explained later. 
+The runez2 algorithm is a strictly superior successor $$^ \dagger$$ to runez with the primary improvement being that there is no unique character limit, which will be explained later. 
 
 The name 'runez' is inspired by the fact that this algorithm attempts to compress utf-8 characters, or, runes. The 'z' implies the compression and looks cool ☺. 
 
@@ -250,6 +250,8 @@ $ wc -c mac.rz
 $
 ```
 
+The space savings shown here is $$ 1- \frac{290}{355} = 0.18 = 18\% $$. 
+
 ### Implementation
 
 #### Compression
@@ -291,7 +293,6 @@ The positions are extracted starting from the front of the list.
 We can see the relevant encoding of the position count, rune, and positions respectively as per:
 
 ```go
-…
 err := binary.Write(w, binary.LittleEndian, pc)
 …
 err = binary.Write(w, binary.LittleEndian, r)
@@ -300,7 +301,6 @@ for p := l.Front(); p != nil; p = p.Next() {
 	err := binary.Write(w, binary.LittleEndian, byte(p.Value.(uint8)))
 	…
 }
-…
 ```
 
 #### Decompression
@@ -490,18 +490,152 @@ $ wc -c mac.rz2
 $
 ```
 
+The space savings shown here is $$ 1- \frac{2030}{3550} = 0.43 = 43\% $$. 
+
+This ratio is indicative of the maximum space savings of this algorithm as illustrated by compressing a much larger document, a utf-8 text transcription of the Quran:
+
+```shell
+$ wc -c quran.txt 
+1344086 quran.txt
+$ runez2 < quran.txt > quran.rz2
+$ wc -c quran.rz2 
+733387 quran.rz2
+$ 
+```
+
+The space savings shown is $$ 1- \frac{733387}{1344086} = 0.45 = 45\% $$. I do not believe that the ratio improves significantly beyond this point. 
+
 **Disclaimer:** I am not a mathematician, these formulae are an approximation of what I remember from university ☺. 
 
-The assumptions make runez2 insufficient for languages such as Mandarin in applications which possess a number of distinct runes greater than 256, which is most applications, but is sufficient in all applications for alphabets such as Arabic, Cyrillic, etc. 
+The assumptions make runez2 insufficient for languages such as Mandarin in applications which possess a number of distinct runes greater than 256, which is most applications in my experience, but is sufficient in all applications for alphabets such as Arabic, Cyrillic, etc. 
 
 ### Implementation
 
 #### Compression
 
+Function definition: <https://github.com/henesy/runez2/blob/98adfdfacd54c540751e4062e581143576e5344a/main.go#L80>
+
+Runez2 begins by beginning a hashmap, mapping a `rune` to a `uint8`. 
+
+The `uint8` mapped value is the indexed offset of a given `rune` in the order the runes were found, and will be emitted.
+
+A list is made to push the rune index values into to represent the structure of the text where each rune index value is a shorthand reference to the rune that should occupy the index values. 
+
+```go
+dict := make(map[rune]uint8)
+runes := list.New()
+```
+
+As runes are found from the input file they are added into the map and pushed, in order, into the list. 
+
+```go
+if i <= 0 {
+	// Handle the base case explicitly
+	dict[ru] = uint8(i)
+	i++
+	first = ru
+} else {
+	// 0 means the rune isn't indexed - kind of a hack
+	if dict[ru] <= 0 && ru != first {
+		dict[ru] = uint8(i)
+		i++
+	}
+}
+
+// Push the i-value for the rune
+runes.PushBack(dict[ru])
+```
+
+When all the runes have been read, a slice is allocated to store a table of runes, the map is effectively reversed and the relevant `i`'th position for a rune is where the rune from the map is stored. 
+
+```go
+for ru, i := range dict {
+	…
+	table[i] = ru
+}
+```
+
+The table is then iterated over and the runes are emitted in order from the table as the preamble of the archive. 
+
+```go
+for i := 0; i < len(table); i++ {
+	…
+	err := binary.Write(w, binary.LittleEndian, table[i])
+	…
+}
+```
+
+The preamble is terminated with a full null rune. 
+
+```go
+err := binary.Write(w, binary.LittleEndian, rune(0))
+```
+
+The list of rune index values is then iterated over to emit the body of the document. 
+
+```go
+for p := runes.Front(); p != nil; p = p.Next() {
+	err := binary.Write(w, binary.LittleEndian, byte(p.Value.(uint8)))
+	…
+}
+```
+
 #### Decompression
+
+Function definition: <https://github.com/henesy/runez2/blob/98adfdfacd54c540751e4062e581143576e5344a/main.go#L161>
+
+A table is allocated to store the preamble runes read in from the input file. 
+
+The table is allocated with a maximum capacity of $$ (\oplus uint8(0) = 255)+1 = 256 $$ runes. 
+
+```go
+var table []rune
+
+table = make([]rune, 0, int(^uint8(0)))
+```
+
+The preamble of runes are then read in and stored in order. Upon reaching a null rune, the preamble is terminated. 
+
+```go
+for {
+	var ru rune
+
+	err := binary.Read(r, binary.LittleEndian, &ru)
+	…
+
+	if ru == 0 {
+		…
+		break
+	}
+
+	table = append(table, ru)
+}
+```
+
+The indices are then read from the body of the archive, in order, and the rune value for the relevant index is substituted to restore the original content of the input, which is emitted. 
+
+```go
+for {
+		var i uint8
+
+		err := binary.Read(r, binary.LittleEndian, &i)
+		…
+		w.Write([]byte(string(table[i])))
+}
+```
+
+## Conclusions
+
+These algorithms were very fun to talk about and write in a casual manner, but are hardly sufficient for any serious compression use and consciously ignore more optimal programming patterns. 
+
+The most valuable take-away from the runez algorithms is that they are simple to implement, reason about, and illustrate a method of compression which may prove valuable for educational purposes, I hope ☺. 
+
+I'm sure someone has already thought of these methods since they're so simple, but I haven't stumbled across these storage formats yet in the wild. Feel free to let me know so I can cite the originals for further reading!
 
 ## Source
 
 - https://github.com/henesy/runez
 - https://github.com/henesy/runez2
+
+$$^ \dagger$$ — unless you want null runes. 
 
