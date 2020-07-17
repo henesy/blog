@@ -1331,7 +1331,7 @@ main(void)
 	s.type = 0;	/* a line */
 
 	if(s.type == 0)
-		print("Shape is line (%d,%d) → (%d,%d)\n, s.p1.x, s.p1.y, s.p2.x, s.p2.y);
+		print("Shape is line (%d,%d) → (%d,%d)\n", s.p1.x, s.p1.y, s.p2.x, s.p2.y);
 
 	sean = .Person.init();
 	engineer = .Worker.init(sean);
