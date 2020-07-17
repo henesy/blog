@@ -5,22 +5,12 @@ tags = [
 	"go",
 ]
 math = true
-markup = "mmark"
 +++
 
-<!-- KaTeX stuff -->
-{{ if or .Params.math .Site.Params.math }}
-{{ partial "math.html" . }}
-{{ end }}
-
-{{< math.inline >}}
-{{ if or .Page.Params.math .Site.Params.math }}
-
+<!-- KateX stuff -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/katex.min.css" integrity="sha384-dbVIfZGuN1Yq7/1Ocstc1lUEm+AT+/rCkibIcC/OmWo5f0EA48Vf8CytHzGrSwbQ" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/katex.min.js" integrity="sha384-2BKqo+exmr9su6dir+qCw08N2ZKRucY4PrGQPPWU1A7FtlCGjmEGFqXCv5nyM5Ij" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-{{ end }}
-{{</ math.inline >}}
 <!-- KateX stuff -->
 
 # The Runez Compression Algorithms
@@ -200,13 +190,13 @@ The table would resemble:
 2 ξ 2 5
 ```
 
-If we perform a small calculation we can see that the size of the input file is 6 int32 values, which are a total of $$ 4 * 6 = 24 $$ bytes. The output file is 3 int32 values and 9 uint8 values totalling $$ 3 * 4 + 9 = 21 $$ bytes. In total, this input yields 3 bytes of compression. 
+If we perform a small calculation we can see that the size of the input file is 6 int32 values, which are a total of {{< math.inline >}} \( 4 * 6 = 24\) {{< /math.inline >}} bytes. The output file is 3 int32 values and 9 uint8 values totalling {{< math.inline >}} \( 3 * 4 + 9 = 21 \) {{< /math.inline >}} bytes. In total, this input yields 3 bytes of compression. 
 
-The fatal assumption made by runez is that there are no more than $$ (\oplus uint8(0) = 255)+1 = 256 $$ total runes present in the input file. 
+The fatal assumption made by runez is that there are no more than {{< math.inline >}} \( (\oplus uint8(0) = 255)+1 = 256 \) {{< /math.inline >}} total runes present in the input file. 
 
 This implies that runez can only compress files consisting of 256 characters or less, which is not very useful. 
 
-The following function expresses the size of the final archive size ($$\sigma$$) in bytes:
+The following function expresses the size of the final archive size ({{< math.inline >}} \(\sigma\) {{< /math.inline >}}) in bytes:
 
 $$
 \sigma = \sum \forall r\{1 + 4 + n_r\}
@@ -432,13 +422,13 @@ The file would resemble:
 0 1 2 0 1 2
 ```
 
-The core assumptions made by Runez2 is that the whole file can be read into memory and that there are no more than $$ (\oplus uint8(0) = 255)+1 = 256 $$ **unique** runes. 
+The core assumptions made by Runez2 is that the whole file can be read into memory and that there are no more than {{< math.inline >}} \( (\oplus uint8(0) = 255)+1 = 256 \) {{< /math.inline >}} **unique** runes. 
 
 Additionally, files compressed by runez2 cannot contain null runes (`\0`) as this is reserved as the dividing point for the preamble. 
 
 There is an implied maximum compression ratio offered by runez2. 
 
-The following function expresses the size of the final archive size ($$\sigma$$) in bytes:
+The following function expresses the size of the final archive size ({{< math.inline >}} \(\sigma\) {{< /math.inline >}}) in bytes:
 
 $$
 \sigma = 4 + \sum \forall r\{n_r + 4 , r \neq \empty\}

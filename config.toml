@@ -26,6 +26,6 @@ footnoteReturnLinkContents = "^"
     tabWidth = 4
 
 [markup.goldmark.renderer]
-unsafe = true
+	unsafe = true
 
 
