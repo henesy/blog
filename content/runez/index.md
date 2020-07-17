@@ -5,7 +5,6 @@ tags = [
 	"go",
 ]
 math = true
-markup = "mmark"
 +++
 
 <!-- KaTeX stuff -->
