@@ -132,6 +132,8 @@ Hello.World
 8. Mb2 over `Hello.World`
 	- You should see a hello world-like message in the log
 
+<br>
+
 <img src="./helloworld.png" title="It was me, Dio!" height="600">
 
 ### M0 from Wirth Space
@@ -178,6 +180,8 @@ BEGIN
 END M0. 
 ```
 
+<br>
+
 <img src="./M0P0.png" title="M0.P0 running" height="600">
 
 ## Some Stuff Oberon Inspired
@@ -202,11 +206,15 @@ This is mostly due to [Go](https://golang.org/)'s lineage, see most of the Limbo
 
 The format for declaring a variable's type does show up in Go as:
 
-	var x int
+```go
+var x int
+```
 
 compare this to Oberon's equivalent:
 
-	VAR sum: INTEGER;
+```text
+VAR sum: INTEGER;
+```
 
 This is a Pascal-ism, but as the language heritage of Go is descended from Pascal, it's worth mentioning. This is also true of Limbo. 
 
