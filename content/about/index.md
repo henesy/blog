@@ -6,6 +6,7 @@ title = "About"
 - Published blog: <https://github.com/henesy/henesy.github.io>
 - Blog source: <https://github.com/henesy/blog>
 - Theme: <https://gitlab.com/asleeppiano/origin-hugo-theme>
+- RSS feed: <https://seh.dev/index.xml>
 
 ## Source
 
