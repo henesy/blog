@@ -1,0 +1,73 @@
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+func isfourable(n int) bool {
+	return n % 4 == 0
+}
+
+func double(n int) int {
+	return 2 * n
+}
+
+
+func main() {
+	a := make([]int, 6)
+	for i := 0; i < len(a); i++ {
+		a[i] = int(math.Pow(float64(i), 2))
+	}
+
+	fmt.Println(a)
+
+	fmt.Println(Map(double, a))
+
+	fmt.Println(Filter(isfourable, a))
+
+	fmt.Println(Find(16, a))
+
+	fmt.Println(Tail(a))
+}
+
+
+func Filter[T any](f func(v T) bool, a []T) []T {
+	o := make([]T, 0, len(a))
+
+	for _, v := range a {
+		if f(v) {
+			o = append(o, v)
+		}
+	}
+
+	return o
+}
+
+func Map[T any](f func(v T) T, a []T) []T {
+	o := make([]T, len(a))
+
+	for i, v := range a {
+		o[i] = f(v)
+	}
+
+	return o
+}
+
+func Find[T comparable](x T, a []T) []T {
+	for i, v := range a {
+		if v == x {
+			return Tail(a[i:])
+		}
+	}
+
+	return nil
+}
+
+func Tail[T any](a []T) []T {
+	if(a == nil || len(a) < 2) {
+		return nil
+	}
+
+	return a[1:]
+}
