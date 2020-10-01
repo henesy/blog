@@ -14,11 +14,11 @@ Integer: type ref Integral;
 
 Integral: adt {
 	n: int;
-	eq:		fn(a, b: ref Integral): int;
-	String:	fn(x: self ref Integral): string;
+	Equals:		fn(a, b: ref Integral): int;
+	String:		fn(x: self ref Integral): string;
 };
 
-Integral.eq(a, b: ref Integral): int {
+Integral.Equals(a, b: ref Integral): int {
 	return a.n == b.n;
 }
 
@@ -49,7 +49,7 @@ init(nil: ref Draw->Context, nil: list of string) {
 		a₀[i] = Integer(i ** 2);
 
 	aprint(a₀);
-	
+
 	aprint(map(double, a₀));
 
 	aprint(filter(isfourable, a₀));
@@ -112,11 +112,11 @@ pair[T₁, T₂](a₁: array of T₁, a₂: array of T₂): array of (T₁, T₂
 # find instance of x in l, return tail of l from x
 find[T](x: T, a: array of T): array of T
 	for {
-		T =>	eq:	fn(a, b: T): int;
+		T =>	Equals:	fn(a, b: T): int;
 	}
 {
 	for(i := 0; i < len a; i++)
-		if(T.eq(x, a[i]))
+		if(T.Equals(x, a[i]))
 			return tail(a[i:]);
 
 	return nil;
@@ -155,7 +155,7 @@ tail[T](a: array of T): array of T {
 	return a[1:];
 }
 
-aprint[T](a: array of T) 
+aprint[T](a: array of T)
 	for {
 		T =>	String:	fn(a: self T): string;
 	}
@@ -175,5 +175,5 @@ aprint[T](a: array of T)
 	}
 
 	sys->print("]\n");
-		
+
 }

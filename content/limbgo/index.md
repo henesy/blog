@@ -1,6 +1,6 @@
 +++
 title = "Polymorphism in Limbo and Go 2"
-date = "2020-09-28"
+date = "2020-09-29"
 tags = [
 	"limbo",
 	"go",
@@ -14,9 +14,13 @@ tags = [
 
 Go has recently announced that it will be receiving a form of polymorphism through generics in Go 2.
 
-Prior to and influencing Go (2), the Limbo programming language from the Inferno operating system had implemented a somewhat similar syntax for polymorphism.
+Prior to and influencing Go (and thus Go 2), the [Limbo programming language](http://doc.cat-v.org/inferno/4th_edition/limbo_language/) from [the Inferno operating system](http://doc.cat-v.org/inferno/) had implemented a somewhat similar syntax for polymorphism.
 
 There are very tangible and crucial differences, but for novelty the two languages are cross-referenced.
+
+This post was primarily motivated by a discussion and linguistic adventure that occurred during [a stream exploring the Limbo language and Inferno OS](https://www.youtube.com/watch?v=6KTGM479O2Q).
+
+**Disclaimer:** I am not an expert on Limbo or Go, if any part of this document is incorrect, please let me know ☺.
 
 ## Recommended prior reading
 
@@ -43,12 +47,13 @@ $ ./all.bash
 $ go2 tool go2go run poly.go2
 ```
 
+Examples may be operable through [the Go 2 playground](https://go2goplay.golang.org/).
+
 References:
 
-- https://blog.golang.org/generics-next-step
-- https://go.googlesource.com/go/+/refs/heads/dev.go2go/README.go2go.md
-- https://go2goplay.golang.org/
-- https://arxiv.org/abs/2005.11710
+- [dev.go2go README](https://go.googlesource.com/go/+/refs/heads/dev.go2go/README.go2go.md)
+- [Type Parameters - Draft Design](https://go.googlesource.com/proposal/+/refs/heads/master/design/go2draft-type-parameters.md)
+- [Featherweight Go](https://arxiv.org/abs/2005.11710)
 
 ### Inferno
 
@@ -91,9 +96,8 @@ $ emu
 From a host OS:
 
 ```text
-$ cd $INFERNO
 $ limbo foo.b
-$ emu /foo.dis
+$ emu -r ./ -d foo.dis
 ```
 
 References:
@@ -106,7 +110,9 @@ References:
 
 ### Lists
 
-Some examples from the standard library in [lists(2)](http://man.postnix.pw/purgatorio/2/lists):
+Lists are a first-class type in Limbo.
+
+Some examples from the standard library's [lists(2)](http://man.postnix.pw/purgatorio/2/lists):
 
 **[/appl/lib/lists.b](https://github.com/9mirrors/purgatorio/blob/master/appl/lib/lists.b)**
 ```c
@@ -179,11 +185,11 @@ Integer: type ref Integral;
 
 Integral: adt {
 	n: int;
-	eq:		fn(a, b: ref Integral): int;
-	String:	fn(x: self ref Integral): string;
+	Equals:		fn(a, b: ref Integral): int;
+	String:		fn(x: self ref Integral): string;
 };
 
-Integral.eq(a, b: ref Integral): int {
+Integral.Equals(a, b: ref Integral): int {
 	return a.n == b.n;
 }
 
@@ -277,11 +283,11 @@ pair[T₁, T₂](a₁: array of T₁, a₂: array of T₂): array of (T₁, T₂
 # find instance of x in l, return tail of l from x
 find[T](x: T, a: array of T): array of T
 	for {
-		T =>	eq:	fn(a, b: T): int;
+		T =>	Equals:	fn(a, b: T): int;
 	}
 {
 	for(i := 0; i < len a; i++)
-		if(T.eq(x, a[i]))
+		if(T.Equals(x, a[i]))
 			return tail(a[i:]);
 
 	return nil;
@@ -359,6 +365,22 @@ aprint[T](a: array of T)
 [1, 4, 9, 16, 25]
 ;
 ```
+
+### Summary
+
+Limbo is picky about what kind of type or value can be considered `T` or be used in a polymorphic manner.
+
+Specifically, only `ref` values may be used polymorphically.
+
+Primitive types such as `int` are disallowed to be used polymorphically as a `ref int` type cannot exist in Limbo.
+
+Practically, these constraints translate to needing to utilize and operate upon, for polymorphic purposes, `ref` types of ADT's.
+
+Additionally, any methods which operate on a type and are intended to be used polymorphically, must operate on a `ref` type of its parent ADT (Abstract Data Type).
+
+For ease of use, a type alias shorthand may be desirable (`Integer` above) to avoid writing `ref Integral` continuously throughout the source.
+
+**Note:** one cannot have a `ref T` in a polymorphic function.
 
 ## Go 2
 
@@ -453,13 +475,23 @@ $ go2 tool go2go run poly.go2
 $
 ```
 
-The `pair()` function is intentionally omitted as Go does not have tuples.
+The `pair()` function is omitted as Go does not have tuples.
 
-The `append()` and `prepend()` functions are omitted as Go has equivalents through its native `append()`.
+The `append()` and `prepend()` functions are omitted as Go can express equivalent functionality through its native `append()`.
 
-The `comparable` interface is described in the Go 2 source as:
+### Summary
 
-**$GOROOT/src/go/types/universe.go:204**
+Go permits polymorphism over `interface` types.
+
+Interface types require methods be present on a given fulfilling type.
+
+Interfaces may extend and further constraint other interfaces.
+
+The `any` interface seen in Go 2 is equivalent to `interface{}` in Go 1 and may be satisfied by **any** type.
+
+The `comparable` interface seen above is described in the Go 2 source as:
+
+**[$GOROOT/src/go/types/universe.go:204](https://github.com/golang/go/blob/5e60d1e8c796e40be31e51e06945d6ec4e40d3f2/src/go/types/universe.go#L204)**
 ```go
 // The "comparable" interface can be imagined as defined like
 //
@@ -472,9 +504,11 @@ The `comparable` interface is described in the Go 2 source as:
 // a magic method == and check for its presence when needed.
 ```
 
+Notably, at present, not all functionality - such as `==` and `!=` above - can be implemented directly by a user, but is limited to being defined inside the compiler proper.
+
 ## Roadblocks
 
-**These Limbo compiler errors:**
+**Limbo compiler errors:**
 
 ```text
 ; mk
@@ -487,14 +521,14 @@ mk: limbo -I/module -gw poly.b : exit status=343 "Sh":fail:errors
 
 The `Equal()` function needs to be defined with `ref Integral`, not `Integral` ☺.
 
-**These Go 2 compiler errors:**
+**Go 2 compiler errors:**
 
 ```text
 $ go2 tool go2go run poly.go2
 /tmp/go2go-run761246244/poly.go2:47:6: expected 'IDENT', found 'map'
 go2: exit 1
 $
-```text
+```
 
 The name `map` is reserved for Go's native `map` type.
 
@@ -507,3 +541,68 @@ $
 
 I used `[type T]` instead of `[T any]` inside a function signature.
 
+## Conclusions
+
+Go 2 implements polymorphism over interfaces, which primitive types are permitted to fulfill.
+
+Limbo does not have interfaces, but can somewhat mimic this behavior using constraints on methods for types, as per above:
+
+```c
+# find instance of x in l, return tail of l from x
+find[T](x: T, a: array of T): array of T
+	# Constraint is here ↓
+	for {
+		T =>	Equals:	fn(a, b: T): int;
+	}
+{
+	# Function proper begins here ↓
+	for(i := 0; i < len a; i++)
+		if(T.Equals(x, a[i]))
+			return tail(a[i:]);
+
+	return nil;
+}
+```
+
+Specifically - in Limbo - a type *T* may be used polymorphically if and only if the type is:
+
+- A reference
+- Can have methods
+
+Thus, since Limbo does not permit type definitions which are references to primitives, only a reference to ADT type may be used polymorphically.
+
+Go's interfaces show their power here, as interfaces can build upon and further constraint other, extant, interfaces, allowing a degree of composition Limbo is not able to represent formally.
+
+Both systems constrain polymorphic types based on the presence of methods and said method's signatures, but Go permits a more flexible model of definition for what may qualify an interface and thus be used polymoprhically.
+
+For example, in Go:
+
+```go
+type Equitable interface {
+	Equals(e Equitable) bool
+}
+
+type Comparable interface {
+	Equitable
+	Greater(c Comparable) bool
+	Lesser(c Comparable) bool
+}
+```
+
+The equivalent for Limbo would resemble a function constraint in the form:
+
+```c
+# find instance of x in l, return tail of l from x
+compare[T](x: T, a: array of T): array of T
+	for {
+		T =>
+			Equals:		fn(a, b: T): int;
+			Greater:		fn(a, b: T): int;
+			Lesser:		fn(a, b: T): int;
+	}
+{ … }
+```
+
+Note that Limbo does not have the ability to group these constraints under a name or set.
+
+Furthermore, as Go is effectively the spiritual successor to Limbo, Go's interfaces represent an evolution on the initial - spartan and limited - implementation of polymorphic type constraint from Limbo and permit a similar, but more elegant model of constraint composition.
