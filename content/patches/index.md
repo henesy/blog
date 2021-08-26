@@ -1,12 +1,12 @@
 +++
-title = "Creating and Applying 9front Patches"
+title = "Creating and Applying 9front Patches (HG Edition)"
 date = "2018-09-07"
 tags = [
 	"plan9",
 ]
 +++
 
-# Creating and Applying 9front Patches
+# Creating and Applying 9front Patches (HG Edition)
 
 ## Creating
 

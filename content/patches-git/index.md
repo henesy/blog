@@ -1,32 +1,32 @@
 +++
-title = "Creating and Applying 9front Patches ­ Git Edition"
+title = "Creating and Applying 9front Patches (Git Edition)"
 date = "2021-08-26"
 tags = [
 	"plan9",
 ]
 +++
 
-# Creating and Applying 9front Patches ­ Git Edition
+# Creating and Applying 9front Patches (Git Edition)
 
 ## History
 
-- October of 2018, Ori [pushes the first commit to git9](https://github.com/Plan9-Archive/git9-hg/commit/22d65457a396771799379df6a8662b312be80a42).
+- October 2018, Ori [pushes the first commit to git9](https://github.com/Plan9-Archive/git9-hg/commit/22d65457a396771799379df6a8662b312be80a42).
 
-- April of 2019, Ori starts the 9fans thread ['[9fans] Git/fs: Possibly Usable'](https://9fans.topicbox.com/groups/9fans/Tfe05d23d2da2ea57-M6ff60bdc26cbe145050c6f8a/9fans-git-fs-possibly-usable).
+- April 2019, Ori starts the 9fans thread ['[9fans] Git/fs: Possibly Usable'](https://9fans.topicbox.com/groups/9fans/Tfe05d23d2da2ea57-M6ff60bdc26cbe145050c6f8a/9fans-git-fs-possibly-usable).
 
-- Late April of 2019, Lufia announces [their port of unix git](https://github.com/lufia/git) on 9fans thread ['[9fans] Git client'](https://9fans.topicbox.com/groups/9fans/Te3752ec266e3a002-M7286f7236d8aab10096f7946/9fans-git-client).
+- Late April 2019, Lufia announces [their port of unix git](https://github.com/lufia/git) on 9fans thread ['[9fans] Git client'](https://9fans.topicbox.com/groups/9fans/Te3752ec266e3a002-M7286f7236d8aab10096f7946/9fans-git-client).
 
-- June of 2019, git9 [migrates to git](https://shithub.us/ori/git9/ec28e68d5f5d72748d4b2d0be2861956b856ef4f/commit.html).
+- June 2019, git9 [migrates to git](https://shithub.us/ori/git9/ec28e68d5f5d72748d4b2d0be2861956b856ef4f/commit.html).
 
-- July of 2020, Atlassian deletes all Mercurial repositories without [archive](https://github.com/Plan9-Archive/git9-hg) or remorse.
+- July 2020, Atlassian deletes all Mercurial repositories without [archive](https://github.com/Plan9-Archive/git9-hg) or remorse.
 
-- Early September of 2020, Ori [summarizes the model for git9](https://orib.dev/git9.html).
+- Early September 2020, Ori [summarizes the model for git9](https://orib.dev/git9.html).
 
-- September of 2020, Ori [announces git9 can serve itself](https://orib.dev/gitserve.html).
+- September 2020, Ori [announces git9 can serve itself](https://orib.dev/gitserve.html).
 
-- November of 2020, Ori [announces that his git9 is self-hosting](https://orib.dev/githosting.html) and [shithub](https://shithub.us/) is launched.
+- November 2020, Ori [announces that his git9 is self-hosting](https://orib.dev/githosting.html) and [shithub](https://shithub.us/) is launched.
 
-- September of 20201, 9front [releases 'Community vs Infrastructure'](http://9front.org/releases/), migrates to git9, and removes Mercurial and Python.
+- September 2021, 9front [releases 'Community vs Infrastructure'](http://9front.org/releases/), migrates to git9, and removes Mercurial and Python.
 
 ## Creating
 
