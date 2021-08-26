@@ -1,6 +1,6 @@
 +++
 title = "Creating and Applying 9front Patches (Git Edition)"
-date = "2021-08-26"
+date = "2021-08-24"
 tags = [
 	"plan9",
 ]
