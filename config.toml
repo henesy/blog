@@ -1,7 +1,7 @@
 baseURL = "https://seh.dev/"
 languageCode = "en-us"
 title = "seh.dev"
-copyright = "© 2020, Sean Hinchee"
+copyright = "© 2022, Sean Hinchee"
 theme = "origin"
 paginate = 5
 enableInlineShortcodes = true
