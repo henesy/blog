@@ -10,15 +10,15 @@ tags = [
 
 ## Background
 
-The summer of 2022 I had the chance to explain Go programming patterns I - and I assume others - use regularly in writing concurrent systems to my three interns.
+The summer of 2022 I had the chance to explain Go programming patterns I - and I assume others - use regularly in writing concurrent systems to my three interns who had never seen Go before.
 
 Although many university courses will talk about threading, they do not necessarily discuss concurrency, rarely if ever Go, and rarely go in depth on polymorphism.
 
-The state of affairs is unfortunate, because it means that although Go and plenty of other 'current generation' programming languages have been publicly available for years, [Go since at least 2012](https://tip.golang.org/doc/devel/release#go1), the situation in many computer science programs is not very different from the state of affairs ten years ago.
+The state of affairs is unfortunate, it means that although Go and plenty of other 'current generation' programming languages have been publicly available for years, [Go since at least 2012](https://tip.golang.org/doc/devel/release#go1), the present situation in many computer science programs is not very different from the state of affairs ten years ago.
 
-Fortunately, Go comes with a broad set of thorough documentation with plenty of examples, which is great, but when you want to introduce multiple concepts at the same time, composed, that are foreign to an audience, you need comprehensive demonstrations.
+Fortunately, Go comes with a broad set of thorough documentation with plenty of examples, which is great, but when you want to introduce multiple concepts at the same time, composed, that are foreign to an audience, you want comprehensive demonstrations of such.
 
-This series will hopefully a composition of examples I have given my interns in one form or another.
+This series will hopefully be a composition of examples I have given my interns in one form or another.
 
 ## Fanning
 
@@ -28,7 +28,7 @@ In mathematical terms, we could make some kind of definition like 'one to many' 
 
 There are a vast number of ways to go about fulfilling the preceding definitions, but in Go our scenario is typically that we want to write a program which is [concurrent](https://go.dev/blog/waza-talk), [does not share memory](https://go.dev/blog/codelab-share), [and nowadays](https://go.dev/blog/go1.18) - [might use polymorphism](https://go.dev/doc/tutorial/generics).
 
-For the record, I do not particularly like the examples given in the Go generics documentation, so I reject them and substitute my own. This is probably because most of my polymorphic programming was in [Limbo](https://seh.dev/limbgo/) where I ended up [also writing my own examples](https://github.com/henesy/limbobyexample).
+For the record, I do not particularly like the examples given in the Go generics documentation, so I reject them and substitute my own. This is almost certainly motived by most of my polymorphic programming being in [Limbo](https://seh.dev/limbgo/) where I ended up [writing my own examples](https://github.com/henesy/limbobyexample).
 
 So, here's an example very similar to one I gave my interns:
 
@@ -128,9 +128,9 @@ func max[T Numeric](a, b T) T {
 
 There's a lot to unpack here!
 
-A bunch of different Go patterns floating around, from the top!
+A bunch of different Go patterns are floating around, from the top!
 
-The experimental polymorphic packages, providing [premade type constraints](godocs.io/golang.org/x/exp/constraints) and [generic slice utilities, respectively](https://godocs.io/golang.org/x/exp/slices).
+The experimental polymorphic packages, providing [premade type constraints](godocs.io/golang.org/x/exp/constraints) and [generic slice utilities](https://godocs.io/golang.org/x/exp/slices), respectively.
 
 ```go
 	"golang.org/x/exp/constraints"
