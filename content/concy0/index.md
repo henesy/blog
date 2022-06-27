@@ -12,7 +12,7 @@ tags = [
 
 The summer of 2022 I had the chance to explain Go programming patterns I - and I assume others - use regularly in writing concurrent systems to my three interns who had never seen Go before.
 
-Although many university courses will talk about threading, they do not necessarily discuss concurrency, rarely if ever Go, and rarely go in depth on polymorphism.
+Although many university courses will talk about threading, they do not necessarily discuss concurrency, rarely if ever Go, and rarely go in depth on parametric polymorphism.
 
 The state of affairs is unfortunate, it means that although Go and plenty of other 'current generation' programming languages have been publicly available for years, [Go since at least 2012](https://tip.golang.org/doc/devel/release#go1), the present situation in many computer science programs is not very different from the state of affairs ten years ago.
 
@@ -26,7 +26,7 @@ Fanning is a handwave-y term for 'taking a lot of stuff, using it in a variety o
 
 In mathematical terms, we could make some kind of definition like 'one to many' then 'many to one' relationships, but I am unfortunately not a mathematician.
 
-There are a vast number of ways to go about fulfilling the preceding definitions, but in Go our scenario is typically that we want to write a program which is [concurrent](https://go.dev/blog/waza-talk), [does not share memory](https://go.dev/blog/codelab-share), [and nowadays](https://go.dev/blog/go1.18) - [might use polymorphism](https://go.dev/doc/tutorial/generics).
+There are a vast number of ways to go about fulfilling the preceding definitions, but in Go our scenario is typically that we want to write a program which is [concurrent](https://go.dev/blog/waza-talk), [does not share memory](https://go.dev/blog/codelab-share), [and nowadays](https://go.dev/blog/go1.18) - [might use parametric polymorphism](https://go.dev/doc/tutorial/generics).
 
 For the record, I do not particularly like the examples given in the Go generics documentation, so I reject them and substitute my own. This is almost certainly motived by most of my polymorphic programming being in [Limbo](https://seh.dev/limbgo/) where I ended up [writing my own examples](https://github.com/henesy/limbobyexample).
 
