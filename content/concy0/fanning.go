@@ -1,9 +1,8 @@
-// https://go.dev/play/p/K10xtOP7-63
+// https://go.dev/play/p/fU-m8_RYt2n
 package main
 
 import (
 	"fmt"
-	"time"
 
 	"golang.org/x/exp/constraints"
 	"golang.org/x/exp/slices"

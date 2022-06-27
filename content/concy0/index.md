@@ -32,13 +32,12 @@ For the record, I do not particularly like the examples given in the Go generics
 
 So, here's an example very similar to one I gave my interns:
 
-[fanning.go](./fanning.go) | [playground](https://go.dev/play/p/K10xtOP7-63)
+[fanning.go](./fanning.go) | [playground](https://go.dev/play/p/fU-m8_RYt2n)
 ```go
 package main
 
 import (
 	"fmt"
-	"time"
 
 	"golang.org/x/exp/constraints"
 	"golang.org/x/exp/slices"
