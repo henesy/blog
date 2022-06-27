@@ -32,7 +32,7 @@ For the record, I do not particularly like the examples given in the Go generics
 
 So, here's an example very similar to one I gave my interns:
 
-[fanning.go](./fanning.go) | [playground](https://go.dev/play/p/-wuQYKzHgaM)
+[fanning.go](./fanning.go) | [playground](https://go.dev/play/p/K10xtOP7-63)
 ```go
 package main
 
@@ -66,11 +66,10 @@ func drain[T Numeric](chans []chan T, results chan T) {
 			select {
 			case x, ok := <-c:
 				if !ok {
+					// Illustrative, this is O(n²)
 					chans = slices.Delete(chans, max(0, i), min(i+1, len(chans)))
 				}
 				res += square(x)
-			default:
-				time.Sleep(2 * time.Millisecond)
 			}
 		}
 	}
@@ -171,7 +170,7 @@ func fill[N Numeric](c chan N, n N, f func(N) N) {
 }
 ```
 
-Drain takes a slice of input channels, `chans`, and a channel for a final value, `results`. While there are channels in `chans`, for every channel in `chans`, if said channel has a value `x` in it, sum the square of `x` to the final value `res`, if the channel is closed, remove the channel from `chans`. If a channel isn't ready to be read from, sleep for `2ms`. After all channels have been exhausted, write the final value to `results` and close the channel `results`.
+Drain takes a slice of input channels, `chans`, and a channel for a final value, `results`. While there are channels in `chans`, for every channel in `chans`, if said channel has a value `x` in it, sum the square of `x` to the final value `res`, if the channel is closed, remove the channel from `chans`. After all channels have been exhausted, write the final value to `results` and close the channel `results`.
 
 ```go
 func drain[T Numeric](chans []chan T, results chan T) {
@@ -181,11 +180,10 @@ func drain[T Numeric](chans []chan T, results chan T) {
 			select {
 			case x, ok := <-c:
 				if !ok {
+					// Illustrative, this is O(n²)
 					chans = slices.Delete(chans, max(0, i), min(i+1, len(chans)))
 				}
 				res += square(x)
-			default:
-				time.Sleep(2 * time.Millisecond)
 			}
 		}
 	}

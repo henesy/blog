@@ -1,4 +1,4 @@
-// https://go.dev/play/p/-wuQYKzHgaM
+// https://go.dev/play/p/K10xtOP7-63
 package main
 
 import (
@@ -31,11 +31,10 @@ func drain[T Numeric](chans []chan T, results chan T) {
 			select {
 			case x, ok := <-c:
 				if !ok {
+					// Illustrative, this is O(n²)
 					chans = slices.Delete(chans, max(0, i), min(i+1, len(chans)))
 				}
 				res += square(x)
-			default:
-				time.Sleep(2 * time.Millisecond)
 			}
 		}
 	}
